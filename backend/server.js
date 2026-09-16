@@ -1,12 +1,13 @@
-const express = require("express");
 require("dotenv").config();
-const pool = require("./db");
-pool.query("SELECT NOW()")
-  .then(() => console.log("Database connected successfully!"))
-  .catch((err) => console.log("Database connection failed:", err.message));
+
+const express = require("express");
+const issueRoutes = require("./routes/issueRoutes");
+
 const app = express();
 
 app.use(express.json());
+
+app.use("/api/issues", issueRoutes);
 
 app.get("/", (req, res) => {
   res.json({
