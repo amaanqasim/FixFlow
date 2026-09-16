@@ -1,5 +1,10 @@
 const pool = require("../db");
 
+
+// =========================================
+// CREATE ISSUE
+// =========================================
+
 const createIssue = async (req, res) => {
   try {
     const {
@@ -50,6 +55,10 @@ const createIssue = async (req, res) => {
 };
 
 
+// =========================================
+// GET MY ISSUES
+// =========================================
+
 const getMyIssues = async (req, res) => {
   try {
     const { reportedBy } = req.query;
@@ -83,7 +92,44 @@ const getMyIssues = async (req, res) => {
 };
 
 
+// =========================================
+// GET ISSUE BY ID
+// =========================================
+
+const getIssueById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT *
+       FROM issues
+       WHERE "issueId" = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Issue not found."
+      });
+    }
+
+    res.status(200).json({
+      message: "Issue fetched successfully.",
+      issue: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Get issue by ID error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch issue."
+    });
+  }
+};
+
+
 module.exports = {
   createIssue,
-  getMyIssues
+  getMyIssues,
+  getIssueById
 };
