@@ -163,14 +163,13 @@ const getIssueById = async (req, res) => {
 };
 
 
-// =========================================
 // UPDATE ISSUE STATUS
 // =========================================
 
 const updateIssueStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, resolutionNote } = req.body;
 
     const validStatuses = [
       "OPEN",
@@ -186,9 +185,9 @@ const updateIssueStatus = async (req, res) => {
       });
     }
 
-    // Get current status before updating
+    // Get current issue information
     const currentIssue = await pool.query(
-      `SELECT "status"
+      `SELECT "status", "resolutionNote", "resolvedAt", "closedAt"
        FROM issues
        WHERE "issueId" = $1`,
       [id]
@@ -201,28 +200,61 @@ const updateIssueStatus = async (req, res) => {
     }
 
     const oldStatus = currentIssue.rows[0].status;
+    const oldResolutionNote = currentIssue.rows[0].resolutionNote;
+
+    // Resolution note is required when resolving
+    if (status === "RESOLVED" && !resolutionNote) {
+      return res.status(400).json({
+        message: "Resolution note is required when resolving an issue."
+      });
+    }
 
     const result = await pool.query(
-      `UPDATE issues
-       SET "status" = $1,
-           "updatedAt" = CURRENT_TIMESTAMP,
-           "resolvedAt" = CASE
-             WHEN $2 = 'RESOLVED' THEN CURRENT_TIMESTAMP
-             ELSE "resolvedAt"
-           END
-       WHERE "issueId" = $3
-       RETURNING *`,
-      [status, status, id]
+  `UPDATE issues
+   SET "status" = $1,
+       "resolutionNote" = CASE
+         WHEN $2 = 'RESOLVED' THEN $3
+         ELSE "resolutionNote"
+       END,
+       "updatedAt" = CURRENT_TIMESTAMP,
+       "resolvedAt" = CASE
+         WHEN $4 = 'RESOLVED' THEN CURRENT_TIMESTAMP
+         ELSE "resolvedAt"
+       END,
+       "closedAt" = CASE
+         WHEN $5 = 'CLOSED' THEN CURRENT_TIMESTAMP
+         ELSE "closedAt"
+       END
+   WHERE "issueId" = $6
+   RETURNING *`,
+  [
+    status,
+    status,
+    resolutionNote || oldResolutionNote,
+    status,
+    status,
+    id
+  ]
+);
+    // Record status change in history
+    await addIssueHistory(
+      id,
+      "STATUS_CHANGED",
+      req.user ? req.user.userId : 1,
+      oldStatus,
+      status
     );
 
-    // Record status change in history
-await addIssueHistory(
-  id,
-  "STATUS_CHANGED",
-  req.user ? req.user.userId : 1,
-  oldStatus,
-  status
-);
+    // Record resolution note in history
+    if (status === "RESOLVED" && resolutionNote) {
+      await addIssueHistory(
+        id,
+        "RESOLUTION_NOTE_ADDED",
+        req.user ? req.user.userId : 1,
+        null,
+        resolutionNote
+      );
+    }
 
     res.status(200).json({
       message: "Issue status updated successfully.",
