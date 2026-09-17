@@ -1,0 +1,60 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+// Authentication
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+// User pages
+import UserDashboard from "./pages/user/UserDashboard";
+import ReportIssue from "./pages/user/ReportIssue";
+import MyIssues from "./pages/user/MyIssues";
+import IssueDetails from "./pages/user/IssueDetails";
+
+// Staff
+import StaffDashboard from "./pages/staff/StaffDashboard";
+
+// Admin
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+
+        {/* Default */}
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+
+        {/* Authentication */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* USER */}
+        <Route path="/user" element={<UserDashboard />} />
+        <Route path="/user/report" element={<ReportIssue />} />
+        <Route path="/user/issues" element={<MyIssues />} />
+        <Route
+          path="/user/issues/:issueId"
+          element={<IssueDetails />}
+        />
+
+        {/* STAFF */}
+        <Route path="/staff" element={<StaffDashboard />} />
+
+        {/* ADMIN */}
+        <Route path="/admin" element={<AdminDashboard />} />
+
+        {/* Unknown URL */}
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
