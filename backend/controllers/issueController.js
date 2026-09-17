@@ -293,10 +293,31 @@ const assignIssue = async (req, res) => {
     });
   }
 };
+const getAllIssues = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT *
+       FROM issues
+       ORDER BY "createdAt" DESC`
+    );
+
+    res.status(200).json({
+      issues: result.rows
+    });
+
+  } catch (error) {
+    console.error("Get all issues error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch issues."
+    });
+  }
+};
 module.exports = {
   createIssue,
   getMyIssues,
   getIssueById,
   updateIssueStatus,
-  assignIssue
+  assignIssue,
+  getAllIssues
 };

@@ -7,12 +7,14 @@ const {
   getMyIssues,
   getIssueById,
   updateIssueStatus,
-  assignIssue
+  assignIssue,
+  getAllIssues
 } = require("../controllers/issueController");
 
 // Create a new issue
 router.post("/", createIssue);
-
+// Get all issues for admin
+router.get("/", getAllIssues);
 
 // Get issues reported by a user
 router.get("/my", getMyIssues);
