@@ -4,10 +4,17 @@ require("./config/cloudinary");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-
+const rateLimit = require("express-rate-limit");
 const issueRoutes = require("./routes/issueRoutes");
 
 const app = express();
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    message: "Too many requests. Please try again later."
+  }
+});
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -17,6 +24,7 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
+app.use("/api", apiLimiter);
 
 app.use("/api/issues", issueRoutes);
 
