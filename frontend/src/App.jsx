@@ -21,6 +21,7 @@ import ManageUsers from "./pages/admin/ManageUsers";
 import Analytics from "./pages/admin/Analytics";
 import AIInsights from "./pages/admin/AIInsights";
 import Settings from "./pages/admin/Settings";
+import IssueHistory from "./pages/admin/IssueHistory";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
         <Route path="/admin/analytics" element={<Analytics />} />
         <Route path="/admin/ai-insights" element={<AIInsights />} />
         <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/history" element={<IssueHistory />} />
 
         {/* Unknown URL */}
         <Route

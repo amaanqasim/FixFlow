@@ -10,6 +10,7 @@ import {
   CheckCircle,
   Clock,
   Activity,
+  History,
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
@@ -155,6 +156,15 @@ function AdminDashboard() {
             >
               <Brain size={19} />
               AI Insights
+            </a>
+
+            {/* ISSUE HISTORY */}
+            <a
+              href="/admin/history"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
+              <History size={19} />
+              Issue History
             </a>
 
             {/* SETTINGS */}
