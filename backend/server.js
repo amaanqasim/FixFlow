@@ -7,6 +7,7 @@ const { Server } = require("socket.io");
 const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const issueRoutes = require("./routes/issueRoutes");
+const authRoutes = require("./routes/authRoutes");
 const app = express();
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -28,6 +29,7 @@ app.use("/api", apiLimiter);
 app.use(cors());
 
 app.use("/api/issues", issueRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({
