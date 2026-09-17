@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const pool = require("../db");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
@@ -85,15 +86,27 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        userId: user.userId,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    const token = jwt.sign(
+  {
+    userId: user.userId,
+    role: user.role
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "1d"
+  }
+);
+
+res.status(200).json({
+  message: "Login successful",
+  token,
+  user: {
+    userId: user.userId,
+    name: user.name,
+    email: user.email,
+    role: user.role
+  }
+});
 
   } catch (error) {
     console.error("Login error:", error.message);

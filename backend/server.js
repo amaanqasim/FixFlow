@@ -7,6 +7,7 @@ const { Server } = require("socket.io");
 const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const issueRoutes = require("./routes/issueRoutes");
+const authenticateToken = require("./middleware/authMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const app = express();
 const apiLimiter = rateLimit({
@@ -31,6 +32,12 @@ app.use(cors());
 app.use("/api/issues", issueRoutes);
 app.use("/api/auth", authRoutes);
 
+app.get("/api/test-auth", authenticateToken, (req, res) => {
+  res.json({
+    message: "Authentication successful",
+    user: req.user
+  });
+});
 app.get("/", (req, res) => {
   res.json({
     message: "FixFlow Backend is running!"
