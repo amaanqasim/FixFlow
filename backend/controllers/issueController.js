@@ -439,6 +439,36 @@ const getIssueHistory = async (req, res) => {
     });
   }
 };
+// =========================================
+// ADMIN ANALYTICS
+// =========================================
+
+const getAnalytics = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        COUNT(*) AS "totalIssues",
+        COUNT(*) FILTER (WHERE "status" = 'OPEN') AS "openIssues",
+        COUNT(*) FILTER (WHERE "status" = 'ASSIGNED') AS "assignedIssues",
+        COUNT(*) FILTER (WHERE "status" = 'IN_PROGRESS') AS "inProgressIssues",
+        COUNT(*) FILTER (WHERE "status" = 'RESOLVED') AS "resolvedIssues",
+        COUNT(*) FILTER (WHERE "status" = 'CLOSED') AS "closedIssues",
+        COUNT(*) FILTER (WHERE "priority" IN ('HIGH', 'CRITICAL')) AS "highPriorityIssues"
+      FROM issues
+    `);
+
+    res.status(200).json({
+      analytics: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Get analytics error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch analytics."
+    });
+  }
+};
 module.exports = {
   createIssue,
   getMyIssues,
@@ -447,5 +477,6 @@ module.exports = {
   assignIssue,
   getAllIssues,
   getIssueHistory,
-  getMyAssignedIssues
+  getMyAssignedIssues,
+  getAnalytics
 };

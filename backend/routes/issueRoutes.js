@@ -10,13 +10,15 @@ const {
   assignIssue,
   getAllIssues,
   getIssueHistory,
-  getMyAssignedIssues
+  getMyAssignedIssues,
+  getAnalytics
 } = require("../controllers/issueController");
 
 // Create a new issue
 router.post("/", createIssue);
 // Get all issues for admin
 router.get("/", getAllIssues);
+router.get("/analytics", getAnalytics);
 
 // Get issues reported by a user
 router.get("/my", getMyIssues);
