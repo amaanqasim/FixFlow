@@ -11,7 +11,8 @@ const {
   getAllIssues,
   getIssueHistory,
   getMyAssignedIssues,
-  getAnalytics
+  getAnalytics,
+generateIssueQRCode
 } = require("../controllers/issueController");
 
 // Create a new issue
@@ -26,7 +27,7 @@ router.get("/assigned", getMyAssignedIssues);
 router.put("/:id/status", updateIssueStatus);
 router.put("/:id/assign", assignIssue);
 router.get("/:id/history", getIssueHistory);
-// Get one issue by ID
+router.get("/:id/qr", generateIssueQRCode);
 router.get("/:id", getIssueById);
 
 
