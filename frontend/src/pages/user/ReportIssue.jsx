@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Menu,
   ArrowLeft,
@@ -13,6 +13,7 @@ import { issues } from "../../data/dummyData";
 
 function ReportIssue() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -24,6 +25,19 @@ function ReportIssue() {
   const [image, setImage] = useState(null);
 
   const [success, setSuccess] = useState("");
+
+  /* 
+    Read location from QR URL.
+    Example:
+    /user/report?location=Library&qrId=QR-003
+  */
+  useEffect(() => {
+    const qrLocation = searchParams.get("location");
+
+    if (qrLocation) {
+      setLocation(qrLocation);
+    }
+  }, [searchParams]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -60,7 +74,11 @@ function ReportIssue() {
     setLocation("");
     setImage(null);
 
-    document.getElementById("issue-image").value = "";
+    const imageInput = document.getElementById("issue-image");
+
+    if (imageInput) {
+      imageInput.value = "";
+    }
 
     setTimeout(() => {
       navigate("/user/issues");
@@ -82,6 +100,7 @@ function ReportIssue() {
           {/* Mobile menu */}
           <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3">
             <button
+              type="button"
               onClick={() => setSidebarOpen(true)}
               className="p-2 rounded-lg hover:bg-slate-100"
             >
@@ -94,6 +113,7 @@ function ReportIssue() {
             {/* Heading */}
             <div className="mb-6">
               <button
+                type="button"
                 onClick={() => navigate("/user")}
                 className="flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 mb-4"
               >
@@ -114,6 +134,14 @@ function ReportIssue() {
             {success && (
               <div className="mb-6 bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">
                 {success}
+              </div>
+            )}
+
+            {/* QR Location Message */}
+            {location && searchParams.get("qrId") && (
+              <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg px-4 py-3 text-sm">
+                Location detected from QR code:{" "}
+                <span className="font-semibold">{location}</span>
               </div>
             )}
 

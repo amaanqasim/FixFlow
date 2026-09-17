@@ -1,22 +1,17 @@
 import React, { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import {
-  LayoutDashboard,
-  ClipboardList,
-  Users,
-  BarChart3,
-  Brain,
-  Settings,
-  History,
   QrCode,
   Download,
   Plus,
   MapPin,
+  CheckCircle,
+  X,
 } from "lucide-react";
-
 import Navbar from "../../components/Navbar";
 
 function QRManagement() {
-  const [locations] = useState([
+  const [locations, setLocations] = useState([
     {
       id: "QR-001",
       location: "Main Building - Ground Floor",
@@ -45,329 +40,261 @@ function QRManagement() {
   ]);
 
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [showAddLocation, setShowAddLocation] = useState(false);
+  const [newLocation, setNewLocation] = useState("");
+  const [clickMessage, setClickMessage] = useState("");
 
   const generateQR = (location) => {
+    setClickMessage(`QR selected for ${location.location}`);
     setSelectedLocation(location);
   };
 
+  const getQRValue = (location) => {
+    return `http://localhost:5173/user/report?location=${encodeURIComponent(
+      location.location
+    )}&qrId=${encodeURIComponent(location.id)}`;
+  };
+
+  const downloadQR = () => {
+    if (!selectedLocation) return;
+
+    const svg = document.getElementById("fixflow-qr");
+
+    if (!svg) return;
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+
+    const blob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${selectedLocation.id}-FixFlow-QR.svg`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
+  const addLocation = () => {
+    const trimmedLocation = newLocation.trim();
+
+    if (!trimmedLocation) return;
+
+    const newQRLocation = {
+      id: `QR-${String(locations.length + 1).padStart(3, "0")}`,
+      location: trimmedLocation,
+      status: "ACTIVE",
+    };
+
+    setLocations([...locations, newQRLocation]);
+    setNewLocation("");
+    setShowAddLocation(false);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="flex min-h-[calc(100vh-64px)]">
-
-        {/* SIDEBAR */}
-        <aside className="w-64 shrink-0 bg-slate-900 text-white flex flex-col">
-
-          <div className="p-6 border-b border-slate-700">
-            <div className="flex items-center gap-3">
-
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                <QrCode size={22} />
-              </div>
-
-              <div>
-                <h2 className="font-bold text-lg">
-                  Admin Panel
-                </h2>
-
-                <p className="text-xs text-slate-400">
-                  FixFlow Management
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <nav className="p-4 space-y-2">
-
-            <a
-              href="/admin"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <LayoutDashboard size={19} />
-              Dashboard
-            </a>
-
-            <a
-              href="/admin/issues"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <ClipboardList size={19} />
-              All Issues
-            </a>
-
-            <a
-              href="/admin/users"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Users size={19} />
-              Manage Users
-            </a>
-
-            <a
-              href="/admin/analytics"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <BarChart3 size={19} />
-              Analytics
-            </a>
-
-            <a
-              href="/admin/ai-insights"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Brain size={19} />
-              AI Insights
-            </a>
-
-            <a
-              href="/admin/ai-analysis"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <QrCode size={19} />
-              AI Issue Analysis
-            </a>
-
-            <a
-              href="/admin/history"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <History size={19} />
-              Issue History
-            </a>
-
-            <a
-              href="/admin/qr"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white"
-            >
-              <QrCode size={19} />
-              QR Management
-            </a>
-
-            <a
-              href="/admin/settings"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Settings size={19} />
-              Settings
-            </a>
-
-          </nav>
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <main className="flex-1 p-8">
-
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
           <div className="flex items-center justify-between mb-8">
-
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">
+              <h1 className="text-3xl font-bold text-gray-800">
                 QR Management
               </h1>
 
-              <p className="text-slate-500 mt-2">
-                Manage QR codes used for location-based issue reporting.
+              <p className="text-gray-500 mt-1">
+                Generate QR codes for issue reporting locations
               </p>
             </div>
 
             <button
-              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-lg hover:bg-blue-700"
+              type="button"
+              onClick={() => setShowAddLocation(true)}
+              className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700"
             >
-              <Plus size={19} />
+              <Plus size={20} />
               Add Location
             </button>
-
           </div>
 
-          {/* INFORMATION CARD */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8">
-
-            <div className="flex gap-4">
-
-              <QrCode
-                className="text-blue-600 mt-1"
-                size={25}
-              />
-
-              <div>
-                <h2 className="font-semibold text-blue-900">
-                  QR Issue Reporting
-                </h2>
-
-                <p className="text-sm text-blue-800 mt-1">
-                  Each QR code represents a specific location. Users can
-                  scan the QR code to report an issue from that location.
-                </p>
+          {/* Click confirmation */}
+          {clickMessage && (
+            <div className="mb-6 bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-lg">
+              <div className="flex items-center gap-2">
+                <CheckCircle size={20} />
+                <span>{clickMessage}</span>
               </div>
-
             </div>
+          )}
 
-          </div>
-
-          {/* QR TABLE */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-
-            <div className="px-6 py-5 border-b border-slate-200">
-
-              <h2 className="text-xl font-semibold text-slate-900">
-                Location QR Codes
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Location List */}
+            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-5">
+                QR Locations
               </h2>
 
-              <p className="text-sm text-slate-500 mt-1">
-                Available QR codes for FixFlow locations
-              </p>
+              <div className="space-y-4">
+                {locations.map((location) => (
+                  <div
+                    key={location.id}
+                    className="flex items-center justify-between border rounded-lg p-4 hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="bg-green-100 p-3 rounded-lg">
+                        <MapPin
+                          className="text-green-600"
+                          size={22}
+                        />
+                      </div>
 
-            </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800">
+                          {location.location}
+                        </h3>
 
-            <div className="overflow-x-auto">
+                        <p className="text-sm text-gray-500">
+                          {location.id}
+                        </p>
+                      </div>
 
-              <table className="w-full text-sm">
+                      <div className="flex items-center gap-1 text-green-600 text-sm">
+                        <CheckCircle size={16} />
+                        {location.status}
+                      </div>
+                    </div>
 
-                <thead className="bg-slate-50">
-
-                  <tr>
-
-                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
-                      QR ID
-                    </th>
-
-                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
-                      Location
-                    </th>
-
-                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
-                      Status
-                    </th>
-
-                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
-                      Action
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {locations.map((item) => (
-
-                    <tr
-                      key={item.id}
-                      className="border-t border-slate-100"
+                    <button
+                      type="button"
+                      onClick={() => generateQR(location)}
+                      className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                     >
-
-                      <td className="px-6 py-5 font-semibold text-slate-800">
-                        {item.id}
-                      </td>
-
-                      <td className="px-6 py-5">
-
-                        <div className="flex items-center gap-2 text-slate-700">
-
-                          <MapPin
-                            size={18}
-                            className="text-slate-400"
-                          />
-
-                          {item.location}
-
-                        </div>
-
-                      </td>
-
-                      <td className="px-6 py-5">
-
-                        <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                          {item.status}
-                        </span>
-
-                      </td>
-
-                      <td className="px-6 py-5">
-
-                        <button
-                          onClick={() => generateQR(item)}
-                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800"
-                        >
-                          <QrCode size={17} />
-                          Generate QR
-                        </button>
-
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                </tbody>
-
-              </table>
-
+                      <QrCode size={18} />
+                      Generate QR
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
-          </div>
+            {/* QR Preview */}
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-5">
+                QR Preview
+              </h2>
 
-          {/* QR PREVIEW */}
-          {selectedLocation && (
+              {selectedLocation ? (
+                <div className="text-center">
+                  <div className="flex justify-center mb-5">
+                    <QRCodeSVG
+                      id="fixflow-qr"
+                      value={getQRValue(selectedLocation)}
+                      size={220}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mt-8">
-
-              <div className="flex items-center justify-between mb-6">
-
-                <div>
-
-                  <h2 className="text-xl font-bold text-slate-900">
-                    QR Code Preview
-                  </h2>
-
-                  <p className="text-slate-500 mt-1">
+                  <h3 className="font-semibold text-gray-800">
                     {selectedLocation.location}
-                  </p>
+                  </h3>
 
-                </div>
-
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  <Download size={18} />
-                  Download QR
-                </button>
-
-              </div>
-
-              <div className="flex justify-center">
-
-                <div className="w-64 h-64 border-4 border-slate-900 rounded-xl flex flex-col items-center justify-center">
-
-                  <QrCode size={170} strokeWidth={1.5} />
-
-                  <p className="text-xs text-slate-500 mt-3">
+                  <p className="text-sm text-gray-500 mt-1">
                     {selectedLocation.id}
                   </p>
 
+                  <button
+                    type="button"
+                    onClick={downloadQR}
+                    className="mt-5 w-full flex items-center justify-center gap-2 bg-gray-800 text-white px-4 py-3 rounded-lg hover:bg-gray-900"
+                  >
+                    <Download size={18} />
+                    Download QR
+                  </button>
                 </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-80 text-center">
+                  <div className="bg-gray-100 p-6 rounded-full mb-4">
+                    <QrCode
+                      size={60}
+                      className="text-gray-400"
+                    />
+                  </div>
 
-              </div>
+                  <h3 className="font-semibold text-gray-700">
+                    No QR Selected
+                  </h3>
 
-              <div className="text-center mt-6">
+                  <p className="text-sm text-gray-500 mt-2">
+                    Click "Generate QR" for a location to preview its QR
+                    code.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <p className="font-semibold text-slate-800">
-                  Scan to Report an Issue
-                </p>
+      {/* Add Location Modal */}
+      {showAddLocation && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Add Location
+              </h2>
 
-                <p className="text-sm text-slate-500 mt-1">
-                  Location: {selectedLocation.location}
-                </p>
-
-              </div>
-
+              <button
+                type="button"
+                onClick={() => setShowAddLocation(false)}
+                className="text-gray-500 hover:text-gray-800"
+              >
+                <X size={22} />
+              </button>
             </div>
 
-          )}
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Location Name
+            </label>
 
-        </main>
-      </div>
+            <input
+              type="text"
+              value={newLocation}
+              onChange={(e) => setNewLocation(e.target.value)}
+              placeholder="Enter location"
+              className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-green-500"
+            />
+
+            <div className="flex gap-3 mt-5">
+              <button
+                type="button"
+                onClick={() => setShowAddLocation(false)}
+                className="flex-1 border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={addLocation}
+                className="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700"
+              >
+                Add Location
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

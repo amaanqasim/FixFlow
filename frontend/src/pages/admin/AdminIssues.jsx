@@ -7,6 +7,7 @@ import {
   Brain,
   Settings,
   History,
+  QrCode,
   Search,
   Filter,
   Eye,
@@ -99,13 +100,21 @@ function AdminIssues() {
               AI Insights
             </a>
 
-            {/* ISSUE HISTORY */}
             <a
               href="/admin/history"
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
             >
               <History size={19} />
               Issue History
+            </a>
+
+            {/* QR MANAGEMENT */}
+            <a
+              href="/admin/qr"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
+              <QrCode size={19} />
+              QR Management
             </a>
 
             <a
