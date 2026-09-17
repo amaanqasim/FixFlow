@@ -1,6 +1,7 @@
 const pool = require("../db");
 const cloudinary = require("../config/cloudinary");
 const generateQRCode = require("../utils/qrGenerator");
+const analyzeIssue = require("../services/aiService");
 // =========================================
 // ADD ISSUE HISTORY
 // =========================================
@@ -89,6 +90,8 @@ if (req.file) {
     );
 
     const issue = result.rows[0];
+    // AI analysis
+const aiAnalysis = await analyzeIssue(description);
 
     // Record issue creation in history
     await addIssueHistory(
@@ -100,9 +103,10 @@ if (req.file) {
     );
 
     res.status(201).json({
-      message: "Issue created successfully.",
-      issue
-    });
+  message: "Issue created successfully.",
+  issue,
+  aiAnalysis
+});
 
   } catch (error) {
     console.error("Create issue error:", error.message);
