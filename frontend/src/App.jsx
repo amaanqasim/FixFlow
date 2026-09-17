@@ -16,6 +16,11 @@ import StaffIssueDetails from "./pages/staff/StaffIssueDetails";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminIssues from "./pages/admin/AdminIssues";
+import ManageUsers from "./pages/admin/ManageUsers";
+import Analytics from "./pages/admin/Analytics";
+import AIInsights from "./pages/admin/AIInsights";
+import Settings from "./pages/admin/Settings";
 
 function App() {
   return (
@@ -43,12 +48,18 @@ function App() {
 
         {/* STAFF */}
         <Route path="/staff" element={<StaffDashboard />} />
-       <Route
-  path="/staff/issues/:issueId"
-  element={<StaffIssueDetails />}
-/>
+        <Route
+          path="/staff/issues/:issueId"
+          element={<StaffIssueDetails />}
+        />
+
         {/* ADMIN */}
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/issues" element={<AdminIssues />} />
+        <Route path="/admin/users" element={<ManageUsers />} />
+        <Route path="/admin/analytics" element={<Analytics />} />
+        <Route path="/admin/ai-insights" element={<AIInsights />} />
+        <Route path="/admin/settings" element={<Settings />} />
 
         {/* Unknown URL */}
         <Route

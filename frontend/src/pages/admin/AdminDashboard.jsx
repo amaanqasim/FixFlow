@@ -5,15 +5,15 @@ import {
   BarChart3,
   Brain,
   Settings,
-  AlertCircle,
-  Clock,
-  CheckCircle,
-  XCircle,
   ShieldCheck,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Activity,
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
-import { issues, users } from "../../data/dummyData";
+import { issues } from "../../data/dummyData";
 
 function AdminDashboard() {
   const totalIssues = issues.length;
@@ -34,31 +34,51 @@ function AdminDashboard() {
     (issue) => issue.status === "RESOLVED"
   ).length;
 
-  const closedIssues = issues.filter(
-    (issue) => issue.status === "CLOSED"
-  ).length;
-
   const criticalIssues = issues.filter(
     (issue) => issue.priority === "CRITICAL"
   ).length;
 
-  const staffCount = users.filter(
-    (user) => user.role === "STAFF"
+  const highPriorityIssues = issues.filter(
+    (issue) => issue.priority === "HIGH"
   ).length;
 
-  const statusClasses = {
-    OPEN: "bg-yellow-100 text-yellow-700",
-    ASSIGNED: "bg-blue-100 text-blue-700",
-    IN_PROGRESS: "bg-purple-100 text-purple-700",
-    RESOLVED: "bg-green-100 text-green-700",
-    CLOSED: "bg-slate-100 text-slate-700",
+  const recentIssues = [...issues]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt)
+    )
+    .slice(0, 5);
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "OPEN":
+        return "bg-red-100 text-red-700";
+      case "ASSIGNED":
+        return "bg-yellow-100 text-yellow-700";
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-700";
+      case "RESOLVED":
+        return "bg-green-100 text-green-700";
+      case "CLOSED":
+        return "bg-slate-200 text-slate-700";
+      default:
+        return "bg-slate-100 text-slate-700";
+    }
   };
 
-  const priorityClasses = {
-    CRITICAL: "bg-red-100 text-red-700",
-    HIGH: "bg-orange-100 text-orange-700",
-    MEDIUM: "bg-yellow-100 text-yellow-700",
-    LOW: "bg-green-100 text-green-700",
+  const getPriorityClass = (priority) => {
+    switch (priority) {
+      case "LOW":
+        return "bg-green-100 text-green-700";
+      case "MEDIUM":
+        return "bg-yellow-100 text-yellow-700";
+      case "HIGH":
+        return "bg-orange-100 text-orange-700";
+      case "CRITICAL":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-slate-100 text-slate-700";
+    }
   };
 
   return (
@@ -67,10 +87,12 @@ function AdminDashboard() {
 
       <div className="flex min-h-[calc(100vh-64px)]">
 
-        {/* Admin Sidebar */}
+        {/* SIDEBAR */}
         <aside className="w-64 shrink-0 bg-slate-900 text-white flex flex-col">
+
           <div className="p-6 border-b border-slate-700">
             <div className="flex items-center gap-3">
+
               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
                 <ShieldCheck size={22} />
               </div>
@@ -84,359 +106,401 @@ function AdminDashboard() {
                   FixFlow Management
                 </p>
               </div>
+
             </div>
           </div>
 
           <nav className="p-4 space-y-2">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white text-left">
+
+            {/* DASHBOARD */}
+            <a
+              href="/admin"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white"
+            >
               <LayoutDashboard size={19} />
               Dashboard
-            </button>
+            </a>
 
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 text-left">
+            {/* ALL ISSUES */}
+            <a
+              href="/admin/issues"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
               <ClipboardList size={19} />
               All Issues
-            </button>
+            </a>
 
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 text-left">
+            {/* MANAGE USERS */}
+            <a
+              href="/admin/users"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
               <Users size={19} />
               Manage Users
-            </button>
+            </a>
 
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 text-left">
+            {/* ANALYTICS */}
+            <a
+              href="/admin/analytics"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
               <BarChart3 size={19} />
               Analytics
-            </button>
+            </a>
 
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 text-left">
+            {/* AI INSIGHTS */}
+            <a
+              href="/admin/ai-insights"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
               <Brain size={19} />
               AI Insights
-            </button>
+            </a>
 
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 text-left">
+            {/* SETTINGS */}
+            <a
+              href="/admin/settings"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+            >
               <Settings size={19} />
               Settings
-            </button>
+            </a>
+
           </nav>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-hidden">
-          <div className="max-w-7xl mx-auto">
+        {/* MAIN CONTENT */}
+        <main className="flex-1 p-6 overflow-y-auto">
 
-            {/* Page Heading */}
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-                Admin Dashboard
-              </h1>
+          {/* HEADER */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-slate-800">
+              Admin Dashboard
+            </h1>
 
-              <p className="text-slate-500 mt-1">
-                Monitor and manage all FixFlow issues.
-              </p>
-            </div>
+            <p className="text-slate-500 mt-1">
+              Monitor and manage the FixFlow issue management system
+            </p>
+          </div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* STAT CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
 
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">
-                      Total Issues
-                    </p>
+            {/* TOTAL */}
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <div className="flex items-center justify-between">
 
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {totalIssues}
-                    </p>
-                  </div>
-
-                  <div className="w-11 h-11 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                    <ClipboardList size={22} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">
-                      Open Issues
-                    </p>
-
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {openIssues}
-                    </p>
-                  </div>
-
-                  <div className="w-11 h-11 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center">
-                    <AlertCircle size={22} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">
-                      In Progress
-                    </p>
-
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {inProgressIssues}
-                    </p>
-                  </div>
-
-                  <div className="w-11 h-11 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                    <Clock size={22} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-500">
-                      Critical Issues
-                    </p>
-
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {criticalIssues}
-                    </p>
-                  </div>
-
-                  <div className="w-11 h-11 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
-                    <AlertCircle size={22} />
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Issue Status Overview */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-
-              <div className="mb-5">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Issue Status Overview
-                </h2>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  Current status of all reported issues
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-
-                <div className="border border-slate-200 rounded-lg p-4">
+                <div>
                   <p className="text-sm text-slate-500">
-                    Open
+                    Total Issues
                   </p>
 
-                  <p className="text-2xl font-bold text-yellow-600 mt-1">
+                  <h2 className="text-3xl font-bold text-slate-800 mt-2">
+                    {totalIssues}
+                  </h2>
+                </div>
+
+                <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <Activity size={24} />
+                </div>
+
+              </div>
+            </div>
+
+            {/* OPEN */}
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <div className="flex items-center justify-between">
+
+                <div>
+                  <p className="text-sm text-slate-500">
+                    Open Issues
+                  </p>
+
+                  <h2 className="text-3xl font-bold text-slate-800 mt-2">
                     {openIssues}
-                  </p>
+                  </h2>
                 </div>
 
-                <div className="border border-slate-200 rounded-lg p-4">
-                  <p className="text-sm text-slate-500">
-                    Assigned
-                  </p>
-
-                  <p className="text-2xl font-bold text-blue-600 mt-1">
-                    {assignedIssues}
-                  </p>
+                <div className="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                  <AlertCircle size={24} />
                 </div>
 
-                <div className="border border-slate-200 rounded-lg p-4">
+              </div>
+            </div>
+
+            {/* IN PROGRESS */}
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <div className="flex items-center justify-between">
+
+                <div>
                   <p className="text-sm text-slate-500">
                     In Progress
                   </p>
 
-                  <p className="text-2xl font-bold text-purple-600 mt-1">
+                  <h2 className="text-3xl font-bold text-slate-800 mt-2">
                     {inProgressIssues}
-                  </p>
+                  </h2>
                 </div>
 
-                <div className="border border-slate-200 rounded-lg p-4">
+                <div className="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                  <Clock size={24} />
+                </div>
+
+              </div>
+            </div>
+
+            {/* RESOLVED */}
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <div className="flex items-center justify-between">
+
+                <div>
                   <p className="text-sm text-slate-500">
                     Resolved
                   </p>
 
-                  <p className="text-2xl font-bold text-green-600 mt-1">
+                  <h2 className="text-3xl font-bold text-slate-800 mt-2">
                     {resolvedIssues}
-                  </p>
+                  </h2>
                 </div>
 
-                <div className="border border-slate-200 rounded-lg p-4">
-                  <p className="text-sm text-slate-500">
-                    Closed
-                  </p>
-
-                  <p className="text-2xl font-bold text-slate-700 mt-1">
-                    {closedIssues}
-                  </p>
+                <div className="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
+                  <CheckCircle size={24} />
                 </div>
 
               </div>
             </div>
 
-            {/* Recent Issues + Quick Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          </div>
 
-              {/* Recent Issues */}
-              <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200">
+          {/* ISSUE OVERVIEW */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
 
-                <div className="p-6 border-b border-slate-200">
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Recent Issues
-                  </h2>
+            {/* STATUS */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
 
-                  <p className="text-sm text-slate-500 mt-1">
-                    Latest reported issues
-                  </p>
+              <h2 className="text-lg font-semibold text-slate-800 mb-5">
+                Issue Status Overview
+              </h2>
+
+              <div className="space-y-4">
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    OPEN
+                  </span>
+
+                  <span className="font-bold text-red-600">
+                    {openIssues}
+                  </span>
                 </div>
 
-                <div className="divide-y divide-slate-100">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    ASSIGNED
+                  </span>
 
-                  {issues.slice(0, 5).map((issue) => (
-                    <div
+                  <span className="font-bold text-yellow-600">
+                    {assignedIssues}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    IN_PROGRESS
+                  </span>
+
+                  <span className="font-bold text-blue-600">
+                    {inProgressIssues}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    RESOLVED
+                  </span>
+
+                  <span className="font-bold text-green-600">
+                    {resolvedIssues}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            {/* PRIORITY */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+
+              <h2 className="text-lg font-semibold text-slate-800 mb-5">
+                Priority Overview
+              </h2>
+
+              <div className="space-y-4">
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    CRITICAL
+                  </span>
+
+                  <span className="font-bold text-red-600">
+                    {criticalIssues}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    HIGH
+                  </span>
+
+                  <span className="font-bold text-orange-600">
+                    {highPriorityIssues}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    MEDIUM
+                  </span>
+
+                  <span className="font-bold text-yellow-600">
+                    {
+                      issues.filter(
+                        (issue) => issue.priority === "MEDIUM"
+                      ).length
+                    }
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    LOW
+                  </span>
+
+                  <span className="font-bold text-green-600">
+                    {
+                      issues.filter(
+                        (issue) => issue.priority === "LOW"
+                      ).length
+                    }
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* RECENT ISSUES */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+
+            <div className="px-6 py-5 border-b border-slate-200">
+
+              <h2 className="text-lg font-semibold text-slate-800">
+                Recent Issues
+              </h2>
+
+              <p className="text-sm text-slate-500 mt-1">
+                Latest issues reported in FixFlow
+              </p>
+
+            </div>
+
+            <div className="overflow-x-auto">
+
+              <table className="w-full text-sm">
+
+                <thead className="bg-slate-50">
+
+                  <tr>
+
+                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
+                      Issue
+                    </th>
+
+                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
+                      Category
+                    </th>
+
+                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
+                      Priority
+                    </th>
+
+                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
+                      Status
+                    </th>
+
+                    <th className="text-left px-6 py-4 font-semibold text-slate-600">
+                      Location
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  {recentIssues.map((issue) => (
+
+                    <tr
                       key={issue.issueId}
-                      className="p-5 hover:bg-slate-50"
+                      className="border-t border-slate-100 hover:bg-slate-50"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
-                        <div className="min-w-0">
+                      <td className="px-6 py-4">
 
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-slate-900">
-                              {issue.title}
-                            </h3>
+                        <p className="font-semibold text-slate-800">
+                          {issue.issueId}
+                        </p>
 
-                            <span className="text-xs text-slate-500">
-                              {issue.issueId}
-                            </span>
-                          </div>
+                        <p className="text-slate-500">
+                          {issue.title}
+                        </p>
 
-                          <p className="text-sm text-slate-500 mt-1">
-                            {issue.location}
-                          </p>
+                      </td>
 
-                        </div>
+                      <td className="px-6 py-4 text-slate-600">
+                        {issue.category}
+                      </td>
 
-                        <div className="flex items-center gap-2 flex-wrap">
+                      <td className="px-6 py-4">
 
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              priorityClasses[issue.priority] ||
-                              "bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            {issue.priority}
-                          </span>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityClass(
+                            issue.priority
+                          )}`}
+                        >
+                          {issue.priority}
+                        </span>
 
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              statusClasses[issue.status] ||
-                              "bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            {issue.status}
-                          </span>
+                      </td>
 
-                        </div>
+                      <td className="px-6 py-4">
 
-                      </div>
-                    </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(
+                            issue.status
+                          )}`}
+                        >
+                          {issue.status}
+                        </span>
+
+                      </td>
+
+                      <td className="px-6 py-4 text-slate-600">
+                        {issue.location}
+                      </td>
+
+                    </tr>
+
                   ))}
 
-                </div>
-              </div>
+                </tbody>
 
-              {/* Quick Overview */}
-              <div className="bg-white rounded-xl border border-slate-200">
-
-                <div className="p-6 border-b border-slate-200">
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Quick Overview
-                  </h2>
-
-                  <p className="text-sm text-slate-500 mt-1">
-                    Administrative summary
-                  </p>
-                </div>
-
-                <div className="p-6 space-y-5">
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                      <Users size={20} />
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-slate-500">
-                        Staff Members
-                      </p>
-
-                      <p className="font-bold text-slate-900">
-                        {staffCount}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
-                      <CheckCircle size={20} />
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-slate-500">
-                        Resolved
-                      </p>
-
-                      <p className="font-bold text-slate-900">
-                        {resolvedIssues}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                      <XCircle size={20} />
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-slate-500">
-                        Closed
-                      </p>
-
-                      <p className="font-bold text-slate-900">
-                        {closedIssues}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-200">
-
-                    <p className="text-sm text-slate-500">
-                      System Status
-                    </p>
-
-                    <div className="flex items-center gap-2 mt-2">
-
-                      <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-
-                      <span className="text-sm font-medium text-green-700">
-                        All Systems Operational
-                      </span>
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
+              </table>
 
             </div>
+
           </div>
+
         </main>
       </div>
     </div>
