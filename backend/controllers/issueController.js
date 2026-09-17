@@ -37,9 +37,15 @@ const createIssue = async (req, res) => {
     } = req.body;
 
     // Basic validation
-    if (!title || !description || !category || !location || !reportedBy) {
+    if (
+      !title ||
+      !description ||
+      !category ||
+      !location ||
+      !reportedBy
+    ) {
       return res.status(400).json({
-        message: "Title, description, category, and location are required."
+        message: "Title, description, category, location, and reportedBy are required."
       });
     }
 
@@ -83,7 +89,6 @@ const createIssue = async (req, res) => {
     });
   }
 };
-
 
 // =========================================
 // GET MY ISSUES
