@@ -12,6 +12,7 @@ import IssueDetails from "./pages/user/IssueDetails";
 
 // Staff
 import StaffDashboard from "./pages/staff/StaffDashboard";
+import StaffIssueDetails from "./pages/staff/StaffIssueDetails";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -42,7 +43,10 @@ function App() {
 
         {/* STAFF */}
         <Route path="/staff" element={<StaffDashboard />} />
-
+       <Route
+  path="/staff/issues/:issueId"
+  element={<StaffIssueDetails />}
+/>
         {/* ADMIN */}
         <Route path="/admin" element={<AdminDashboard />} />
 
