@@ -20,8 +20,10 @@ import AdminIssues from "./pages/admin/AdminIssues";
 import ManageUsers from "./pages/admin/ManageUsers";
 import Analytics from "./pages/admin/Analytics";
 import AIInsights from "./pages/admin/AIInsights";
+import AIAnalysis from "./pages/admin/AIAnalysis";
 import Settings from "./pages/admin/Settings";
 import IssueHistory from "./pages/admin/IssueHistory";
+import QRManagement from "./pages/admin/QRManagement";
 
 function App() {
   return (
@@ -60,8 +62,10 @@ function App() {
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/analytics" element={<Analytics />} />
         <Route path="/admin/ai-insights" element={<AIInsights />} />
-        <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/ai-analysis" element={<AIAnalysis />} />
         <Route path="/admin/history" element={<IssueHistory />} />
+        <Route path="/admin/qr" element={<QRManagement />} />
+        <Route path="/admin/settings" element={<Settings />} />
 
         {/* Unknown URL */}
         <Route
