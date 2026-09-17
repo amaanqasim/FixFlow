@@ -319,7 +319,41 @@ const assignIssue = async (req, res) => {
   }
 };
 
+// =========================================
+// GET MY ASSIGNED ISSUES
+// =========================================
 
+const getMyAssignedIssues = async (req, res) => {
+  try {
+    const { staffId } = req.query;
+
+    if (!staffId) {
+      return res.status(400).json({
+        message: "staffId is required."
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT *
+       FROM issues
+       WHERE "assignedTo" = $1
+       ORDER BY "createdAt" DESC`,
+      [staffId]
+    );
+
+    res.status(200).json({
+      message: "Assigned issues fetched successfully.",
+      issues: result.rows
+    });
+
+  } catch (error) {
+    console.error("Get assigned issues error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch assigned issues."
+    });
+  }
+};
 // =========================================
 // GET ALL ISSUES
 // =========================================
@@ -380,5 +414,6 @@ module.exports = {
   updateIssueStatus,
   assignIssue,
   getAllIssues,
-  getIssueHistory
+  getIssueHistory,
+  getMyAssignedIssues
 };
