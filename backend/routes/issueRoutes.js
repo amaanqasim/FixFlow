@@ -1,5 +1,5 @@
 const express = require("express");
-
+const upload = require("../middleware/upload");
 const router = express.Router();
 
 const {
@@ -15,7 +15,7 @@ const {
 } = require("../controllers/issueController");
 
 // Create a new issue
-router.post("/", createIssue);
+router.post("/", upload.single("image"), createIssue);
 // Get all issues for admin
 router.get("/", getAllIssues);
 router.get("/analytics", getAnalytics);

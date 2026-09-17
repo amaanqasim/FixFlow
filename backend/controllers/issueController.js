@@ -1,5 +1,5 @@
 const pool = require("../db");
-
+const cloudinary = require("../config/cloudinary");
 // =========================================
 // ADD ISSUE HISTORY
 // =========================================
@@ -27,14 +27,36 @@ const addIssueHistory = async (
 const createIssue = async (req, res) => {
   try {
     const {
-      title,
-      description,
-      category,
-      priority,
-      location,
-      imageUrl,
-      reportedBy
-    } = req.body;
+  title,
+  description,
+  category,
+  priority,
+  location,
+  reportedBy
+} = req.body;
+
+let uploadedImageUrl = null;
+
+if (req.file) {
+  const uploadResult = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "fixflow/issues"
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    stream.end(req.file.buffer);
+  });
+
+  uploadedImageUrl = uploadResult.secure_url;
+}
 
     // Basic validation
     if (
@@ -60,7 +82,7 @@ const createIssue = async (req, res) => {
         category,
         priority || "MEDIUM",
         location,
-        imageUrl || null,
+        uploadedImageUrl,
         reportedBy
       ]
     );
