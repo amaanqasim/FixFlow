@@ -182,9 +182,121 @@ const result = await pool.query(
     });
   }
 };
+const assignIssueToStaff = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { staffId } = req.body;
+
+    if (!staffId) {
+      return res.status(400).json({
+        message: "Staff ID is required."
+      });
+    }
+
+    // Check whether the selected user is actually a STAFF member
+    const staffResult = await pool.query(
+      `SELECT "userId", name, email, role
+       FROM users
+       WHERE "userId" = $1 AND role = 'STAFF'`,
+      [staffId]
+    );
+
+    if (staffResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Staff member not found."
+      });
+    }
+
+    // Assign the issue to the staff member
+    const result = await pool.query(
+      `UPDATE issues
+       SET "assignedTo" = $1,
+           "status" = 'ASSIGNED',
+           "updatedAt" = CURRENT_TIMESTAMP
+       WHERE "issueId" = $2
+       RETURNING *`,
+      [staffId, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Issue not found."
+      });
+    }
+
+    res.status(200).json({
+      message: "Issue assigned to staff successfully.",
+      issue: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Assign issue error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to assign issue."
+    });
+  }
+};
+const assignIssue = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { staffId } = req.body;
+
+    if (!staffId) {
+      return res.status(400).json({
+        message: "Staff ID is required."
+      });
+    }
+
+    // Check whether the selected user is actually a STAFF member
+    const staffResult = await pool.query(
+      `SELECT "userId", name, email, role
+       FROM users
+       WHERE "userId" = $1
+       AND role = 'STAFF'`,
+      [staffId]
+    );
+
+    if (staffResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Staff member not found."
+      });
+    }
+
+    // Assign the issue to the staff member
+    const result = await pool.query(
+      `UPDATE issues
+       SET "assignedTo" = $1,
+           "status" = 'ASSIGNED',
+           "updatedAt" = CURRENT_TIMESTAMP
+       WHERE "issueId" = $2
+       RETURNING *`,
+      [staffId, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Issue not found."
+      });
+    }
+
+    res.status(200).json({
+      message: "Issue assigned successfully.",
+      issue: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Assign issue error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to assign issue."
+    });
+  }
+};
 module.exports = {
   createIssue,
   getMyIssues,
   getIssueById,
-  updateIssueStatus
+  updateIssueStatus,
+  assignIssue
 };
