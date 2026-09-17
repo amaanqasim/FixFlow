@@ -8,7 +8,8 @@ const {
   getIssueById,
   updateIssueStatus,
   assignIssue,
-  getAllIssues
+  getAllIssues,
+  getIssueHistory
 } = require("../controllers/issueController");
 
 // Create a new issue
@@ -20,7 +21,7 @@ router.get("/", getAllIssues);
 router.get("/my", getMyIssues);
 router.put("/:id/status", updateIssueStatus);
 router.put("/:id/assign", assignIssue);
-
+router.get("/:id/history", getIssueHistory);
 // Get one issue by ID
 router.get("/:id", getIssueById);
 

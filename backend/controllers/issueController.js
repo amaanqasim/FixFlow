@@ -1,5 +1,24 @@
 const pool = require("../db");
 
+// =========================================
+// ADD ISSUE HISTORY
+// =========================================
+
+const addIssueHistory = async (
+  issueId,
+  action,
+  changedBy,
+  oldValue,
+  newValue
+) => {
+  await pool.query(
+    `INSERT INTO "issueHistory"
+     ("issueId", action, "changedBy", "oldValue", "newValue", "createdAt")
+     VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`,
+    [issueId, action, changedBy, oldValue, newValue]
+  );
+};
+
 
 // =========================================
 // CREATE ISSUE
@@ -40,9 +59,20 @@ const createIssue = async (req, res) => {
       ]
     );
 
+    const issue = result.rows[0];
+
+    // Record issue creation in history
+    await addIssueHistory(
+      issue.issueId,
+      "ISSUE_CREATED",
+      reportedBy,
+      null,
+      "OPEN"
+    );
+
     res.status(201).json({
       message: "Issue created successfully.",
-      issue: result.rows[0]
+      issue
     });
 
   } catch (error) {
@@ -127,6 +157,7 @@ const getIssueById = async (req, res) => {
   }
 };
 
+
 // =========================================
 // UPDATE ISSUE STATUS
 // =========================================
@@ -150,24 +181,43 @@ const updateIssueStatus = async (req, res) => {
       });
     }
 
-const result = await pool.query(
-  `UPDATE issues
-   SET "status" = $1,
-       "updatedAt" = CURRENT_TIMESTAMP,
-       "resolvedAt" = CASE
-         WHEN $2 = 'RESOLVED' THEN CURRENT_TIMESTAMP
-         ELSE "resolvedAt"
-       END
-   WHERE "issueId" = $3
-   RETURNING *`,
-  [status, status, id]
-);
+    // Get current status before updating
+    const currentIssue = await pool.query(
+      `SELECT "status"
+       FROM issues
+       WHERE "issueId" = $1`,
+      [id]
+    );
 
-    if (result.rows.length === 0) {
+    if (currentIssue.rows.length === 0) {
       return res.status(404).json({
         message: "Issue not found."
       });
     }
+
+    const oldStatus = currentIssue.rows[0].status;
+
+    const result = await pool.query(
+      `UPDATE issues
+       SET "status" = $1,
+           "updatedAt" = CURRENT_TIMESTAMP,
+           "resolvedAt" = CASE
+             WHEN $2 = 'RESOLVED' THEN CURRENT_TIMESTAMP
+             ELSE "resolvedAt"
+           END
+       WHERE "issueId" = $3
+       RETURNING *`,
+      [status, status, id]
+    );
+
+    // Record status change in history
+await addIssueHistory(
+  id,
+  "STATUS_CHANGED",
+  req.user ? req.user.userId : 1,
+  oldStatus,
+  status
+);
 
     res.status(200).json({
       message: "Issue status updated successfully.",
@@ -182,61 +232,12 @@ const result = await pool.query(
     });
   }
 };
-const assignIssueToStaff = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { staffId } = req.body;
 
-    if (!staffId) {
-      return res.status(400).json({
-        message: "Staff ID is required."
-      });
-    }
 
-    // Check whether the selected user is actually a STAFF member
-    const staffResult = await pool.query(
-      `SELECT "userId", name, email, role
-       FROM users
-       WHERE "userId" = $1 AND role = 'STAFF'`,
-      [staffId]
-    );
+// =========================================
+// ASSIGN ISSUE TO STAFF
+// =========================================
 
-    if (staffResult.rows.length === 0) {
-      return res.status(404).json({
-        message: "Staff member not found."
-      });
-    }
-
-    // Assign the issue to the staff member
-    const result = await pool.query(
-      `UPDATE issues
-       SET "assignedTo" = $1,
-           "status" = 'ASSIGNED',
-           "updatedAt" = CURRENT_TIMESTAMP
-       WHERE "issueId" = $2
-       RETURNING *`,
-      [staffId, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Issue not found."
-      });
-    }
-
-    res.status(200).json({
-      message: "Issue assigned to staff successfully.",
-      issue: result.rows[0]
-    });
-
-  } catch (error) {
-    console.error("Assign issue error:", error.message);
-
-    res.status(500).json({
-      message: "Failed to assign issue."
-    });
-  }
-};
 const assignIssue = async (req, res) => {
   try {
     const { id } = req.params;
@@ -248,7 +249,7 @@ const assignIssue = async (req, res) => {
       });
     }
 
-    // Check whether the selected user is actually a STAFF member
+    // Check whether the selected user is actually STAFF
     const staffResult = await pool.query(
       `SELECT "userId", name, email, role
        FROM users
@@ -263,7 +264,23 @@ const assignIssue = async (req, res) => {
       });
     }
 
-    // Assign the issue to the staff member
+    // Get current issue information
+    const currentIssue = await pool.query(
+      `SELECT "status", "assignedTo"
+       FROM issues
+       WHERE "issueId" = $1`,
+      [id]
+    );
+
+    if (currentIssue.rows.length === 0) {
+      return res.status(404).json({
+        message: "Issue not found."
+      });
+    }
+
+    const oldStatus = currentIssue.rows[0].status;
+
+    // Assign the issue
     const result = await pool.query(
       `UPDATE issues
        SET "assignedTo" = $1,
@@ -274,11 +291,14 @@ const assignIssue = async (req, res) => {
       [staffId, id]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Issue not found."
-      });
-    }
+    // Record assignment in history
+    await addIssueHistory(
+      id,
+      "ISSUE_ASSIGNED",
+      req.user ? req.user.userId : 1,
+      oldStatus,
+      "ASSIGNED"
+    );
 
     res.status(200).json({
       message: "Issue assigned successfully.",
@@ -293,6 +313,12 @@ const assignIssue = async (req, res) => {
     });
   }
 };
+
+
+// =========================================
+// GET ALL ISSUES
+// =========================================
+
 const getAllIssues = async (req, res) => {
   try {
     const result = await pool.query(
@@ -313,11 +339,41 @@ const getAllIssues = async (req, res) => {
     });
   }
 };
+
+
+// =========================================
+// EXPORT CONTROLLERS
+// =========================================
+const getIssueHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT *
+       FROM "issueHistory"
+       WHERE "issueId" = $1
+       ORDER BY "createdAt" ASC`,
+      [id]
+    );
+
+    res.status(200).json({
+      history: result.rows
+    });
+
+  } catch (error) {
+    console.error("Get issue history error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch issue history."
+    });
+  }
+};
 module.exports = {
   createIssue,
   getMyIssues,
   getIssueById,
   updateIssueStatus,
   assignIssue,
-  getAllIssues
+  getAllIssues,
+  getIssueHistory
 };
