@@ -5,9 +5,9 @@ const router = express.Router();
 const {
   createIssue,
   getMyIssues,
-  getIssueById
+  getIssueById,
+  updateIssueStatus
 } = require("../controllers/issueController");
-
 
 // Create a new issue
 router.post("/", createIssue);
@@ -15,6 +15,7 @@ router.post("/", createIssue);
 
 // Get issues reported by a user
 router.get("/my", getMyIssues);
+router.put("/:id/status", updateIssueStatus);
 
 
 // Get one issue by ID

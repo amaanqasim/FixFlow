@@ -127,9 +127,64 @@ const getIssueById = async (req, res) => {
   }
 };
 
+// =========================================
+// UPDATE ISSUE STATUS
+// =========================================
 
+const updateIssueStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = [
+      "OPEN",
+      "ASSIGNED",
+      "IN_PROGRESS",
+      "RESOLVED",
+      "CLOSED"
+    ];
+
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status."
+      });
+    }
+
+const result = await pool.query(
+  `UPDATE issues
+   SET "status" = $1,
+       "updatedAt" = CURRENT_TIMESTAMP,
+       "resolvedAt" = CASE
+         WHEN $2 = 'RESOLVED' THEN CURRENT_TIMESTAMP
+         ELSE "resolvedAt"
+       END
+   WHERE "issueId" = $3
+   RETURNING *`,
+  [status, status, id]
+);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Issue not found."
+      });
+    }
+
+    res.status(200).json({
+      message: "Issue status updated successfully.",
+      issue: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Update issue status error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to update issue status."
+    });
+  }
+};
 module.exports = {
   createIssue,
   getMyIssues,
-  getIssueById
+  getIssueById,
+  updateIssueStatus
 };
