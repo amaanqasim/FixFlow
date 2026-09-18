@@ -9,68 +9,92 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("fixflowUser");
+    localStorage.removeItem("fixflowToken");
     navigate("/login");
   };
 
   return (
-    <nav className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6">
+    <nav className="h-16 bg-[#111111] border-b border-white/10 text-white flex items-center justify-between px-4 md:px-6 sticky top-0 z-50">
 
-      {/* Logo */}
+      {/* BRAND */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center">
-          <span className="font-bold">F</span>
+        <div className="relative w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center overflow-hidden">
+          <span className="font-black text-lg">F</span>
+
+          <span className="absolute w-1.5 h-1.5 rounded-full bg-black/40 top-2 right-2" />
         </div>
 
-        <h1 className="text-xl font-bold text-slate-900">
-          FixFlow
-        </h1>
+        <div className="leading-none">
+          <h1 className="text-[17px] font-semibold tracking-tight">
+            FixFlow
+          </h1>
+
+          <p className="text-[9px] uppercase tracking-[0.2em] text-white/35 mt-1">
+            Maintenance system
+          </p>
+        </div>
       </div>
 
-      {/* Right Side */}
-      <div className="flex items-center gap-4">
+      {/* RIGHT SIDE */}
+      <div className="flex items-center gap-3">
 
-        {/* Notification */}
+        {/* SYSTEM STATUS */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/[0.03]">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+
+          <span className="text-[10px] uppercase tracking-[0.16em] text-white/45">
+            System online
+          </span>
+        </div>
+
+        {/* NOTIFICATIONS */}
         <button
-          className="relative p-2 rounded-lg hover:bg-slate-100 transition"
+          className="relative w-9 h-9 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] transition-all duration-300 flex items-center justify-center group"
           title="Notifications"
         >
-          <Bell size={20} className="text-slate-600" />
-
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-
-        {/* User */}
-        <div className="hidden sm:flex items-center gap-2">
-          <UserCircle
-            size={32}
-            className="text-slate-500"
+          <Bell
+            size={17}
+            className="text-white/60 group-hover:text-white transition-colors"
           />
 
-          <div className="leading-tight">
-            <p className="text-sm font-semibold text-slate-800">
+          <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full" />
+        </button>
+
+        {/* USER */}
+        <div className="hidden sm:flex items-center gap-2.5 pl-2">
+          <div className="text-right leading-tight">
+            <p className="text-sm font-medium text-white/90">
               {user?.name || "User"}
             </p>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-[10px] uppercase tracking-widest text-white/35 mt-0.5">
               {user?.role || "USER"}
             </p>
           </div>
+
+          <UserCircle
+            size={29}
+            strokeWidth={1.4}
+            className="text-white/50"
+          />
         </div>
 
-        {/* Logout */}
+        {/* LOGOUT */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition"
+          className="group flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white hover:text-black transition-all duration-300"
         >
-          <LogOut size={18} />
+          <LogOut
+            size={16}
+            className="text-white/50 group-hover:text-black transition-colors"
+          />
 
-          <span className="hidden sm:inline">
+          <span className="hidden sm:inline text-xs font-medium">
             Logout
           </span>
         </button>
 
       </div>
-
     </nav>
   );
 }

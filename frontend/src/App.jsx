@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import FixFlowExperience from "./components/FixFlowExperience";
 // Authentication
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -29,6 +29,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+  path="/experience"
+  element={<FixFlowExperience />}
+/>
 
         {/* Default */}
         <Route

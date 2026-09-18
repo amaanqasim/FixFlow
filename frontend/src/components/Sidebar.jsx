@@ -27,15 +27,14 @@ function Sidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* MOBILE OVERLAY */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed md:static
@@ -43,29 +42,44 @@ function Sidebar({ isOpen, onClose }) {
           z-50
           w-64
           h-screen md:h-[calc(100vh-4rem)]
-          bg-white
-          border-r border-slate-200
-          transition-transform duration-300
-          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          bg-[#111111]
+          text-white
+          border-r border-white/10
+          transition-transform duration-500 ease-out
+          ${isOpen
+            ? "translate-x-0"
+            : "-translate-x-full md:translate-x-0"
+          }
         `}
       >
 
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 md:hidden">
-          <h2 className="font-bold text-slate-900">
-            FixFlow
-          </h2>
+        {/* MOBILE HEADER */}
+        <div className="flex items-center justify-between p-5 border-b border-white/10 md:hidden">
+          <div>
+            <p className="text-sm font-semibold">FixFlow</p>
+
+            <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mt-1">
+              Navigation
+            </p>
+          </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-slate-100"
+            className="p-2 rounded-xl hover:bg-white/10 transition"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
+        {/* DESKTOP LABEL */}
+        <div className="hidden md:block px-6 pt-7 pb-4">
+          <p className="text-[9px] uppercase tracking-[0.25em] text-white/25">
+            Workspace
+          </p>
+        </div>
+
+        {/* NAVIGATION */}
+        <nav className="px-3 space-y-1">
 
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -76,20 +90,51 @@ function Sidebar({ isOpen, onClose }) {
                 to={item.path}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition ${
+                  `
+                  group relative
+                  flex items-center gap-3
+                  px-4 py-3
+                  rounded-xl
+                  text-sm
+                  transition-all duration-300
+                  ${
                     isActive
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-slate-600 hover:bg-slate-100"
-                  }`
+                      ? "bg-white text-black"
+                      : "text-white/45 hover:text-white hover:bg-white/[0.06]"
+                  }
+                  `
                 }
               >
-                <Icon size={20} />
+                <Icon
+                  size={18}
+                  strokeWidth={1.7}
+                  className="transition-transform duration-300 group-hover:scale-105"
+                />
+
                 <span>{item.name}</span>
+
+                {/* ACTIVE INDICATOR */}
+                <span className="ml-auto text-[10px] opacity-40">
+                  →
+                </span>
               </NavLink>
             );
           })}
 
         </nav>
+
+        {/* BOTTOM SYSTEM DETAIL */}
+        <div className="absolute bottom-6 left-5 right-5 hidden md:block">
+          <div className="border-t border-white/10 pt-4">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+
+              <span className="text-[9px] uppercase tracking-[0.18em] text-white/30">
+                Maintenance network active
+              </span>
+            </div>
+          </div>
+        </div>
 
       </aside>
     </>
