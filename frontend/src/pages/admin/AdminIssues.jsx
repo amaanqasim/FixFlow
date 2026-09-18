@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -14,17 +14,51 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
-import { issues } from "../../data/dummyData";
 
 function AdminIssues() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [issues, setIssues] = useState([]); 
+  useEffect(() => {
+  const fetchIssues = async () => {
+    const token = localStorage.getItem("fixflowToken");
+
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/issues",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message || "Failed to fetch issues");
+        return;
+      }
+
+      setIssues(data.issues || []);
+    } catch (error) {
+      console.error("Fetch issues error:", error);
+    }
+  };
+
+  fetchIssues();
+}, []);
 
   const filteredIssues = issues.filter((issue) => {
     const matchesSearch =
-      issue.issueId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          String(issue.issueId).toLowerCase().includes(searchTerm.toLowerCase()) ||
       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       issue.location.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -284,7 +318,7 @@ function AdminIssues() {
 
                       <td className="px-5 py-4">
                         <a
-                          href={`/staff/issues/${issue.issueId}`}
+                          href={`/admin/issues/${issue.issueId}`}
                           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           <Eye size={17} />

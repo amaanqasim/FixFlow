@@ -13,7 +13,6 @@ import {
 
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
-import { users } from "../../data/dummyData";
 
 function IssueDetails() {
   const navigate = useNavigate();
@@ -134,13 +133,7 @@ function IssueDetails() {
     );
   }
 
-  const reporter = users.find(
-    (user) => user.userId === issue.reportedBy
-  );
-
-  const assignedStaff = users.find(
-    (user) => user.userId === issue.assignedTo
-  );
+  
 
   const statusSteps = [
     "OPEN",
@@ -359,7 +352,7 @@ function IssueDetails() {
                         </p>
 
                         <p className="text-sm font-medium text-slate-800 mt-1">
-                          {reporter?.name || issue.reportedBy}
+                          {issue.reportedBy}
                         </p>
                       </div>
                     </div>
@@ -377,7 +370,7 @@ function IssueDetails() {
                         </p>
 
                         <p className="text-sm font-medium text-slate-800 mt-1">
-                          {assignedStaff?.name || "Not assigned"}
+                          {issue.assignedTo || "Not assigned"}
                         </p>
                       </div>
                     </div>

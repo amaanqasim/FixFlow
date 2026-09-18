@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -10,8 +10,6 @@ import {
 
 import Navbar from "../../components/Navbar";
 import StaffSidebar from "../../components/StaffSidebar";
-import { issues, users } from "../../data/dummyData";
-
 function StaffDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
@@ -21,9 +19,41 @@ function StaffDashboard() {
 
   const currentStaffId = user?.userId || "STF-001";
 
-  const assignedIssues = issues.filter(
-    (issue) => issue.assignedTo === currentStaffId
-  );
+ const [assignedIssues, setAssignedIssues] = useState([]);
+ useEffect(() => {
+  const fetchAssignedIssues = async () => {
+    const token = localStorage.getItem("fixflowToken");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/issues/assigned",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message || "Failed to fetch assigned issues");
+        return;
+      }
+
+      setAssignedIssues(data.issues);
+    } catch (error) {
+      console.error("Fetch assigned issues error:", error);
+    }
+  };
+
+  fetchAssignedIssues();
+}, [navigate]);
 
   const inProgressIssues = assignedIssues.filter(
     (issue) => issue.status === "IN_PROGRESS"

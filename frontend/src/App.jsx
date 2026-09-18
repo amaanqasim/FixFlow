@@ -63,6 +63,7 @@ function App() {
         {/* ADMIN */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/issues" element={<AdminIssues />} />
+         <Route path="/admin/issues/:issueId" element={<StaffIssueDetails />}/>
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/analytics" element={<Analytics />} />
         <Route path="/admin/ai-insights" element={<AIInsights />} />

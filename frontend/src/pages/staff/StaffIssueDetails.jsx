@@ -13,6 +13,7 @@ import { issues, users, issueHistory } from "../../data/dummyData";
 
 function StaffIssueDetails() {
   const { issueId } = useParams();
+  const isAdminView = window.location.pathname.startsWith("/admin/issues/");
   const navigate = useNavigate();
 
   const issue = issues.find(
