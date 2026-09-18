@@ -33,9 +33,10 @@ const createIssue = async (req, res) => {
   description,
   category,
   priority,
-  location,
-  reportedBy
+  location
 } = req.body;
+
+const reportedBy = req.user.userId;
 
 let uploadedImageUrl = null;
 
@@ -62,14 +63,13 @@ if (req.file) {
 
     // Basic validation
     if (
-      !title ||
-      !description ||
-      !category ||
-      !location ||
-      !reportedBy
-    ) {
+  !title ||
+  !description ||
+  !category ||
+  !location
+) {
       return res.status(400).json({
-        message: "Title, description, category, location, and reportedBy are required."
+        message: "Title, description, category, location are required."
       });
     }
 
@@ -123,13 +123,7 @@ const aiAnalysis = await analyzeIssue(description);
 
 const getMyIssues = async (req, res) => {
   try {
-    const { reportedBy } = req.query;
-
-    if (!reportedBy) {
-      return res.status(400).json({
-        message: "reportedBy is required."
-      });
-    }
+    const reportedBy = req.user.userId;
 
     const result = await pool.query(
       `SELECT *
@@ -384,13 +378,7 @@ const assignIssue = async (req, res) => {
 
 const getMyAssignedIssues = async (req, res) => {
   try {
-    const { staffId } = req.query;
-
-    if (!staffId) {
-      return res.status(400).json({
-        message: "staffId is required."
-      });
-    }
+    const staffId = req.user.userId;
 
     const result = await pool.query(
       `SELECT *

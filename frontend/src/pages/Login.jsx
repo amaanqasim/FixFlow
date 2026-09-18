@@ -7,8 +7,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { users } from "../data/dummyData";
-
 function Login() {
   const navigate = useNavigate();
 
@@ -16,35 +14,53 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     setError("");
 
-    const user = users.find(
-      (item) =>
-        item.email === email.trim() &&
-        item.password === password
-    );
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password,
+          }),
+        }
+      );
 
-    if (!user) {
-      setError("Invalid email or password.");
-      return;
-    }
+      const data = await response.json();
 
-    // Temporary frontend-only authentication.
-    // Later this will be replaced by Person 2's API.
-    localStorage.setItem(
-      "fixflowUser",
-      JSON.stringify(user)
-    );
+      if (!response.ok) {
+        setError(data.message || "Invalid email or password.");
+        return;
+      }
 
-    if (user.role === "USER") {
-      navigate("/user");
-    } else if (user.role === "STAFF") {
-      navigate("/staff");
-    } else if (user.role === "ADMIN") {
-      navigate("/admin");
+      // Store JWT token
+      localStorage.setItem("fixflowToken", data.token);
+
+      // Store logged-in user
+      localStorage.setItem(
+        "fixflowUser",
+        JSON.stringify(data.user)
+      );
+
+      // Redirect based on role
+      if (data.user.role === "USER") {
+        navigate("/user");
+      } else if (data.user.role === "STAFF") {
+        navigate("/staff");
+      } else if (data.user.role === "ADMIN") {
+        navigate("/admin");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Unable to connect to the server.");
     }
   };
 
@@ -54,7 +70,6 @@ function Login() {
 
         {/* Logo / Branding */}
         <div className="text-center mb-8">
-
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white mb-4">
             <ShieldCheck size={30} />
           </div>
@@ -66,7 +81,6 @@ function Login() {
           <p className="text-slate-500 mt-2">
             Report. Track. Resolve.
           </p>
-
         </div>
 
         {/* Login Card */}
@@ -88,20 +102,15 @@ function Login() {
             </div>
           )}
 
-          <form
-            onSubmit={handleLogin}
-            className="space-y-5"
-          >
+          <form onSubmit={handleLogin} className="space-y-5">
 
             {/* Email */}
             <div>
-
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Email
               </label>
 
               <div className="relative">
-
                 <Mail
                   size={19}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -115,20 +124,16 @@ function Login() {
                   className="w-full border border-slate-300 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
-
               </div>
-
             </div>
 
             {/* Password */}
             <div>
-
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Password
               </label>
 
               <div className="relative">
-
                 <Lock
                   size={19}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -142,9 +147,7 @@ function Login() {
                   className="w-full border border-slate-300 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
-
               </div>
-
             </div>
 
             {/* Login Button */}
@@ -167,7 +170,6 @@ function Login() {
             >
               Register
             </Link>
-
           </p>
 
         </div>
@@ -182,3 +184,4 @@ function Login() {
 }
 
 export default Login;
+

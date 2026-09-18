@@ -9,8 +9,6 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-import { users } from "../data/dummyData";
-
 function Register() {
   const navigate = useNavigate();
 
@@ -22,7 +20,7 @@ function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     setError("");
@@ -34,35 +32,42 @@ function Register() {
       return;
     }
 
-    // Check whether email already exists
-    const existingUser = users.find(
-      (user) => user.email === email.trim()
-    );
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            password,
+          }),
+        }
+      );
 
-    if (existingUser) {
-      setError("An account with this email already exists.");
-      return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(
+          data.message || "Registration failed. Please try again."
+        );
+        return;
+      }
+
+      setSuccess(
+        "Registration successful! Redirecting to login..."
+      );
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1200);
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError("Unable to connect to the server.");
     }
-
-    // Create a temporary frontend user.
-    // Later this will be replaced by Person 2's API.
-    const newUser = {
-      userId: `USR-${String(users.length + 1).padStart(3, "0")}`,
-      name: name.trim(),
-      email: email.trim(),
-      password: password,
-      role: "USER",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    users.push(newUser);
-
-    setSuccess("Registration successful! Redirecting to login...");
-
-    setTimeout(() => {
-      navigate("/login");
-    }, 1200);
   };
 
   return (
@@ -263,3 +268,4 @@ function Register() {
 }
 
 export default Register;
+

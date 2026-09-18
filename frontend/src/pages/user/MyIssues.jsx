@@ -8,7 +8,7 @@ import {
 
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
-import { issues } from "../../data/dummyData";
+
 
 function MyIssues() {
   const navigate = useNavigate();

@@ -9,7 +9,7 @@ import {
 
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
-import { issues } from "../../data/dummyData";
+
 
 function ReportIssue() {
   const navigate = useNavigate();
@@ -39,51 +39,58 @@ function ReportIssue() {
     }
   }, [searchParams]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSuccess("");
 
-    const storedUser = localStorage.getItem("fixflowUser");
-    const user = storedUser ? JSON.parse(storedUser) : null;
+  const token = localStorage.getItem("fixflowToken");
 
-    const newIssue = {
-      issueId: `ISS-${String(issues.length + 1).padStart(3, "0")}`,
-      title: title.trim(),
-      description: description.trim(),
-      category,
-      priority,
-      status: "OPEN",
-      location: location.trim(),
-      imageUrl: image ? image.name : "",
-      reportedBy: user?.userId || "USR-001",
-      assignedTo: null,
-      resolutionNote: "",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      resolvedAt: null,
-      closedAt: null,
-    };
+  if (!token) {
+    alert("Please login again.");
+    navigate("/login");
+    return;
+  }
 
-    issues.push(newIssue);
+  try {
+    const formData = new FormData();
+
+    formData.append("title", title.trim());
+    formData.append("description", description.trim());
+    formData.append("category", category);
+    formData.append("priority", priority || "MEDIUM");
+    formData.append("location", location.trim());
+
+    if (image) {
+      formData.append("image", image);
+    }
+
+    const response = await fetch("http://localhost:5000/api/issues", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Failed to report issue.");
+      return;
+    }
 
     setSuccess("Issue reported successfully.");
-
-    setTitle("");
-    setDescription("");
-    setCategory("");
-    setPriority("");
-    setLocation("");
-    setImage(null);
-
-    const imageInput = document.getElementById("issue-image");
-
-    if (imageInput) {
-      imageInput.value = "";
-    }
 
     setTimeout(() => {
       navigate("/user/issues");
     }, 1200);
-  };
+  } catch (error) {
+    console.error("Create issue error:", error);
+    alert("Unable to connect to the server.");
+  }
+};
+    
+
 
   return (
     <div className="min-h-screen bg-slate-100">
