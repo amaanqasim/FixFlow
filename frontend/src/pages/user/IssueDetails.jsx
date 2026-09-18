@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Menu,
@@ -13,18 +13,106 @@ import {
 
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
-import { issues, issueHistory, users } from "../../data/dummyData";
+import { users } from "../../data/dummyData";
 
 function IssueDetails() {
   const navigate = useNavigate();
   const { issueId } = useParams();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [issue, setIssue] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState([]);
 
-  const issue = issues.find(
-    (item) => item.issueId === issueId
-  );
+  // Fetch issue details
+  useEffect(() => {
+    const fetchIssue = async () => {
+      const token = localStorage.getItem("fixflowToken");
 
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/issues/${issueId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error(data.message || "Failed to fetch issue");
+          setIssue(null);
+          return;
+        }
+
+        setIssue(data.issue || data);
+      } catch (error) {
+        console.error("Fetch issue error:", error);
+        setIssue(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIssue();
+  }, [issueId, navigate]);
+
+  // Fetch issue history
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const token = localStorage.getItem("fixflowToken");
+
+      if (!token || !issue) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/issues/${issue.issueId}/history`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error(data.message || "Failed to fetch history");
+          return;
+        }
+
+        setHistory(data.history || data);
+      } catch (error) {
+        console.error("Fetch history error:", error);
+      }
+    };
+
+    fetchHistory();
+  }, [issue]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-100">
+        <Navbar />
+
+        <div className="flex items-center justify-center p-8">
+          <p className="text-slate-500">Loading issue details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Issue not found
   if (!issue) {
     return (
       <div className="min-h-screen bg-slate-100">
@@ -54,13 +142,6 @@ function IssueDetails() {
     (user) => user.userId === issue.assignedTo
   );
 
-  const history = issueHistory
-    .filter((item) => item.issueId === issue.issueId)
-    .sort(
-      (a, b) =>
-        new Date(a.createdAt) - new Date(b.createdAt)
-    );
-
   const statusSteps = [
     "OPEN",
     "ASSIGNED",
@@ -69,9 +150,7 @@ function IssueDetails() {
     "CLOSED",
   ];
 
-  const currentStatusIndex = statusSteps.indexOf(
-    issue.status
-  );
+  const currentStatusIndex = statusSteps.indexOf(issue.status);
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -128,9 +207,7 @@ function IssueDetails() {
     return action
       .replaceAll("_", " ")
       .toLowerCase()
-      .replace(/\b\w/g, (letter) =>
-        letter.toUpperCase()
-      );
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   };
 
   return (
@@ -233,6 +310,7 @@ function IssueDetails() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
+                    {/* Location */}
                     <div className="flex items-start gap-3">
                       <MapPin
                         size={20}
@@ -250,6 +328,7 @@ function IssueDetails() {
                       </div>
                     </div>
 
+                    {/* Reported On */}
                     <div className="flex items-start gap-3">
                       <CalendarDays
                         size={20}
@@ -267,6 +346,7 @@ function IssueDetails() {
                       </div>
                     </div>
 
+                    {/* Reported By */}
                     <div className="flex items-start gap-3">
                       <User
                         size={20}
@@ -284,6 +364,7 @@ function IssueDetails() {
                       </div>
                     </div>
 
+                    {/* Assigned Staff */}
                     <div className="flex items-start gap-3">
                       <User
                         size={20}
@@ -370,13 +451,14 @@ function IssueDetails() {
                               <p className="text-sm text-slate-500 mt-1">
                                 {item.oldValue.replace("_", " ")}
                                 {" → "}
-                                {item.newValue.replace("_", " ")}
+                                {item.newValue?.replace("_", " ")}
                               </p>
                             )}
 
                             {!item.oldValue && item.newValue && (
                               <p className="text-sm text-slate-500 mt-1">
-                                Assigned to {assignedStaff?.name || item.newValue}
+                                Assigned to{" "}
+                                {assignedStaff?.name || item.newValue}
                               </p>
                             )}
 
@@ -481,6 +563,7 @@ function IssueDetails() {
             </div>
 
           </div>
+
         </main>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -19,11 +19,43 @@ function MyIssues() {
   const storedUser = localStorage.getItem("fixflowUser");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  const currentUserId = user?.userId || "USR-001";
+  const [myIssues, setMyIssues] = useState([]);
 
-  const myIssues = issues.filter(
-    (issue) => issue.reportedBy === currentUserId
-  );
+useEffect(() => {
+  const fetchMyIssues = async () => {
+    const token = localStorage.getItem("fixflowToken");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/issues/my",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      
+
+      if (!response.ok) {
+        console.error(data.message || "Failed to fetch issues");
+        return;
+      }
+
+      setMyIssues(data.issues);
+    } catch (error) {
+      console.error("Fetch my issues error:", error);
+    }
+  };
+
+  fetchMyIssues();
+}, [navigate]);
 
   const filteredIssues = myIssues.filter((issue) => {
     const matchesSearch =
