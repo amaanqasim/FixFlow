@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,21 +9,64 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
-import { issues, users, issueHistory } from "../../data/dummyData";
+
+
 
 function StaffIssueDetails() {
   const { issueId } = useParams();
   const isAdminView = window.location.pathname.startsWith("/admin/issues/");
   const navigate = useNavigate();
+  const [issue, setIssue] = useState(null);
+const [history, setHistory] = useState([]);
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+  const fetchIssue = async () => {
+    const token = localStorage.getItem("fixflowToken");
 
-  const issue = issues.find(
-    (item) => item.issueId === issueId
-  );
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/issues/${issueId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.message || "Failed to fetch issue");
+        setLoading(false);
+        return;
+      }
+
+      setIssue(data.issue);
+      setLoading(false);
+    } catch (error) {
+      console.error("Fetch issue error:", error);
+      setLoading(false);
+    }
+  };
+
+  fetchIssue();
+}, [issueId, navigate]);
+ 
 
   const [status, setStatus] = useState(
     issue?.status || "OPEN"
   );
-
+useEffect(() => {
+  if (issue) {
+    setStatus(issue.status);
+    setResolutionNote(issue.resolutionNote || "");
+  }
+}, [issue]);
   const [resolutionNote, setResolutionNote] = useState(
     issue?.resolutionNote || ""
   );
@@ -55,18 +98,10 @@ function StaffIssueDetails() {
     );
   }
 
-  const reporter = users.find(
-    (user) => user.userId === issue.reportedBy
-  );
 
-  const assignedStaff = users.find(
-    (user) => user.userId === issue.assignedTo
-  );
+ 
 
-  const history = issueHistory.filter(
-    (item) => item.issueId === issue.issueId
-  );
-
+  
   const handleSave = () => {
     const oldStatus = issue.status;
     const now = new Date().toISOString();
@@ -208,7 +243,7 @@ function StaffIssueDetails() {
                       </p>
 
                       <p className="text-sm font-medium text-slate-800 mt-1">
-                        {reporter?.name || issue.reportedBy}
+                        {issue.reportedBy}
                       </p>
                     </div>
                   </div>
@@ -226,7 +261,7 @@ function StaffIssueDetails() {
                       </p>
 
                       <p className="text-sm font-medium text-slate-800 mt-1">
-                        {assignedStaff?.name || issue.assignedTo}
+                        {issue.assignedTo || "Not assigned"}
                       </p>
                     </div>
                   </div>
