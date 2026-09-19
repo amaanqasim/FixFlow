@@ -450,10 +450,11 @@ function IssueDetails() {
 
                             {!item.oldValue && item.newValue && (
                               <p className="text-sm text-slate-500 mt-1">
-                                Assigned to{" "}
-                                {assignedStaff?.name || item.newValue}
-                              </p>
-                            )}
+                                Assigned to {item.newValue}
+                                </p>
+)}
+                            
+                            
 
                             <p className="text-xs text-slate-400 mt-2">
                               {formatDate(item.createdAt)}

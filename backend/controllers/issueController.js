@@ -126,10 +126,17 @@ const getMyIssues = async (req, res) => {
     const reportedBy = req.user.userId;
 
     const result = await pool.query(
-      `SELECT *
-       FROM issues
-       WHERE "reportedBy" = $1
-       ORDER BY "createdAt" DESC`,
+      `SELECT
+          i.*,
+          reporter.name AS "reportedByName",
+          staff.name AS "assignedToName"
+       FROM issues i
+       JOIN users reporter
+         ON i."reportedBy" = reporter."userId"
+       LEFT JOIN users staff
+         ON i."assignedTo" = staff."userId"
+       WHERE i."reportedBy" = $1
+       ORDER BY i."createdAt" DESC`,
       [reportedBy]
     );
 
@@ -146,8 +153,6 @@ const getMyIssues = async (req, res) => {
     });
   }
 };
-
-
 // =========================================
 // GET ISSUE BY ID
 // =========================================
@@ -157,9 +162,16 @@ const getIssueById = async (req, res) => {
     const { id } = req.params;
 
     const result = await pool.query(
-      `SELECT *
-       FROM issues
-       WHERE "issueId" = $1`,
+      `SELECT
+          i.*,
+          reporter.name AS "reportedByName",
+          staff.name AS "assignedToName"
+       FROM issues i
+       JOIN users reporter
+         ON i."reportedBy" = reporter."userId"
+       LEFT JOIN users staff
+         ON i."assignedTo" = staff."userId"
+       WHERE i."issueId" = $1`,
       [id]
     );
 
@@ -182,7 +194,6 @@ const getIssueById = async (req, res) => {
     });
   }
 };
-
 
 // UPDATE ISSUE STATUS
 // =========================================

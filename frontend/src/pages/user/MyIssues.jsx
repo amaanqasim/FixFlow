@@ -9,59 +9,94 @@ import {
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 
-
 function MyIssues() {
   const navigate = useNavigate();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const storedUser = localStorage.getItem("fixflowUser");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-
   const [myIssues, setMyIssues] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-useEffect(() => {
-  const fetchMyIssues = async () => {
-    const token = localStorage.getItem("fixflowToken");
+  useEffect(() => {
+    const fetchMyIssues = async () => {
+      const token = localStorage.getItem("fixflowToken");
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/issues/my",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-      
-
-      if (!response.ok) {
-        console.error(data.message || "Failed to fetch issues");
+      if (!token) {
+        navigate("/login");
         return;
       }
 
-      setMyIssues(data.issues);
-    } catch (error) {
-      console.error("Fetch my issues error:", error);
-    }
-  };
+      setLoading(true);
+      setError("");
 
-  fetchMyIssues();
-}, [navigate]);
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/issues/my",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        console.log("My Issues API response:", data);
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("fixflowToken");
+          localStorage.removeItem("fixflowUser");
+          navigate("/login");
+          return;
+        }
+
+        if (!response.ok) {
+          setError(data.message || "Failed to load your issues.");
+          setMyIssues([]);
+          return;
+        }
+
+        const issues = Array.isArray(data)
+          ? data
+          : Array.isArray(data.issues)
+          ? data.issues
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
+
+        setMyIssues(issues);
+      } catch (error) {
+        console.error("Fetch my issues error:", error);
+
+        setError(
+          "Unable to connect to the backend. Please make sure the server is running."
+        );
+
+        setMyIssues([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyIssues();
+  }, [navigate]);
 
   const filteredIssues = myIssues.filter((issue) => {
+    const title = String(issue.title || "").toLowerCase();
+    const location = String(issue.location || "").toLowerCase();
+    const category = String(issue.category || "").toLowerCase();
+
+    const search = searchTerm.toLowerCase();
+
     const matchesSearch =
-      issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      issue.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      issue.category.toLowerCase().includes(searchTerm.toLowerCase());
+      title.includes(search) ||
+      location.includes(search) ||
+      category.includes(search);
 
     const matchesStatus =
       statusFilter === "ALL" || issue.status === statusFilter;
@@ -161,7 +196,7 @@ useEffect(() => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search issues..."
-                    className="w-full border border-slate-300 rounded-lg pl-10 pr-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-slate-300 rounded-lg pl-10 pr-4 py-3 outline-none text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -169,7 +204,7 @@ useEffect(() => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="md:w-52 border border-slate-300 rounded-lg px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="md:w-52 border border-slate-300 rounded-lg px-4 py-3 bg-white text-slate-900 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="ALL">All Status</option>
                   <option value="OPEN">Open</option>
@@ -191,12 +226,50 @@ useEffect(() => {
                 </h2>
 
                 <p className="text-sm text-slate-500 mt-1">
-                  {filteredIssues.length} issue
-                  {filteredIssues.length !== 1 ? "s" : ""} found
+                  {loading
+                    ? "Loading issues..."
+                    : `${filteredIssues.length} issue${
+                        filteredIssues.length !== 1 ? "s" : ""
+                      } found`}
                 </p>
               </div>
 
-              {filteredIssues.length === 0 ? (
+              {/* Loading */}
+              {loading && (
+                <div className="p-10 text-center">
+                  <p className="text-slate-500">
+                    Loading your issues...
+                  </p>
+                </div>
+              )}
+
+              {/* Error */}
+              {!loading && error && (
+                <div className="p-10 text-center">
+                  <ClipboardList
+                    size={42}
+                    className="mx-auto text-red-300"
+                  />
+
+                  <h3 className="text-lg font-semibold text-slate-700 mt-4">
+                    Could not load issues
+                  </h3>
+
+                  <p className="text-sm text-red-500 mt-2">
+                    {error}
+                  </p>
+
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="mt-5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              )}
+
+              {/* Empty */}
+              {!loading && !error && filteredIssues.length === 0 && (
                 <div className="p-10 text-center">
 
                   <ClipboardList
@@ -209,11 +282,16 @@ useEffect(() => {
                   </h3>
 
                   <p className="text-sm text-slate-500 mt-1">
-                    Try changing your search or status filter.
+                    {myIssues.length === 0
+                      ? "You have not reported any issues yet."
+                      : "Try changing your search or status filter."}
                   </p>
 
                 </div>
-              ) : (
+              )}
+
+              {/* Issues list */}
+              {!loading && !error && filteredIssues.length > 0 && (
                 <div className="divide-y divide-slate-200">
 
                   {filteredIssues.map((issue) => (
@@ -228,7 +306,7 @@ useEffect(() => {
                       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
                         {/* Issue information */}
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
 
                           <div className="flex flex-wrap items-center gap-2">
 
@@ -241,7 +319,10 @@ useEffect(() => {
                                 issue.status
                               )}`}
                             >
-                              {issue.status.replace("_", " ")}
+                              {String(issue.status || "").replace(
+                                "_",
+                                " "
+                              )}
                             </span>
 
                           </div>
@@ -270,6 +351,33 @@ useEffect(() => {
 
                           </div>
 
+                          {/* People information */}
+                          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 mt-4">
+
+                            <div className="text-sm">
+                              <span className="text-slate-400">
+                                Reported by:{" "}
+                              </span>
+
+                              <span className="font-medium text-slate-700">
+                                {issue.reportedByName ||
+                                  "Unknown"}
+                              </span>
+                            </div>
+
+                            <div className="text-sm">
+                              <span className="text-slate-400">
+                                Assigned to:{" "}
+                              </span>
+
+                              <span className="font-medium text-slate-700">
+                                {issue.assignedToName ||
+                                  "Not assigned"}
+                              </span>
+                            </div>
+
+                          </div>
+
                         </div>
 
                         {/* Issue ID */}
@@ -280,7 +388,7 @@ useEffect(() => {
                           </p>
 
                           <p className="text-sm font-semibold text-slate-700 mt-1">
-                            {issue.issueId}
+                            #{issue.issueId}
                           </p>
 
                         </div>

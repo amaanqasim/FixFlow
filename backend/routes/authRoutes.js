@@ -116,4 +116,24 @@ res.status(200).json({
     });
   }
 });
+router.get("/staff", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT "userId", name, email
+       FROM users
+       WHERE role = 'STAFF'
+       ORDER BY name ASC`
+    );
+
+    res.status(200).json({
+      staff: result.rows
+    });
+  } catch (error) {
+    console.error("Fetch staff error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch staff members"
+    });
+  }
+});
 module.exports = router;
