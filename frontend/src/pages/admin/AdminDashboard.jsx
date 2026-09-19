@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
+import AdminSidebar from "../../components/AdminSidebar";
 import { issues } from "../../data/dummyData";
 
 function AdminDashboard() {
@@ -43,95 +44,7 @@ function AdminDashboard() {
       {/* DASHBOARD AREA */}
       <div className="flex h-[calc(100vh-64px)]">
 
-        {/* SIDEBAR */}
-        <aside className="w-64 h-full shrink-0 bg-slate-900 text-white overflow-y-auto">
-
-          <div className="p-5">
-            <h2 className="text-xl font-bold">
-              Admin Panel
-            </h2>
-
-            <p className="text-sm text-slate-400 mt-1">
-              FixFlow Management
-            </p>
-          </div>
-
-          <nav className="px-3 space-y-1">
-
-            <a
-              href="/admin"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white"
-            >
-              <LayoutDashboard size={19} />
-              Dashboard
-            </a>
-
-            <a
-              href="/admin/issues"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <ClipboardList size={19} />
-              All Issues
-            </a>
-
-            <a
-              href="/admin/users"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <Users size={19} />
-              Manage Users
-            </a>
-
-            <a
-              href="/admin/analytics"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <BarChart3 size={19} />
-              Analytics
-            </a>
-
-            <a
-              href="/admin/ai-insights"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <Brain size={19} />
-              AI Insights
-            </a>
-
-            <a
-              href="/admin/ai-analysis"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <Sparkles size={19} />
-              AI Issue Analysis
-            </a>
-
-            <a
-              href="/admin/history"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <History size={19} />
-              Issue History
-            </a>
-
-            <a
-              href="/admin/qr"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <QrCode size={19} />
-              QR Management
-            </a>
-
-            <a
-              href="/admin/settings"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
-            >
-              <Settings size={19} />
-              Settings
-            </a>
-
-          </nav>
-        </aside>
+        <AdminSidebar />
 
 
         {/* MAIN CONTENT */}

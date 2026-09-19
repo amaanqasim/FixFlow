@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
+import AdminSidebar from "../../components/AdminSidebar";
 import { issues } from "../../data/dummyData";
 
 function Analytics() {
@@ -86,86 +87,7 @@ function Analytics() {
       <div className="flex min-h-[calc(100vh-64px)]">
 
         {/* SIDEBAR */}
-        <aside className="w-64 shrink-0 bg-slate-900 text-white flex flex-col">
-
-          <div className="p-6 border-b border-slate-700">
-            <div className="flex items-center gap-3">
-
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                <ShieldCheck size={22} />
-              </div>
-
-              <div>
-                <h2 className="font-bold text-lg">
-                  Admin Panel
-                </h2>
-
-                <p className="text-xs text-slate-400">
-                  FixFlow Management
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <nav className="p-4 space-y-2">
-
-            {/* Dashboard */}
-            <a
-              href="/admin"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <LayoutDashboard size={19} />
-              Dashboard
-            </a>
-
-            {/* All Issues */}
-            <a
-              href="/admin/issues"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <ClipboardList size={19} />
-              All Issues
-            </a>
-
-            {/* Manage Users */}
-            <a
-              href="/admin/users"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Users size={19} />
-              Manage Users
-            </a>
-
-            {/* Analytics */}
-            <a
-              href="/admin/analytics"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white"
-            >
-              <BarChart3 size={19} />
-              Analytics
-            </a>
-
-            {/* AI Insights */}
-            <a
-              href="/admin/ai-insights"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Brain size={19} />
-              AI Insights
-            </a>
-
-            {/* Settings */}
-            <a
-              href="/admin/settings"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Settings size={19} />
-              Settings
-            </a>
-
-          </nav>
-        </aside>
+        <AdminSidebar />
 
         {/* MAIN CONTENT */}
         <main className="flex-1 p-6 overflow-y-auto">

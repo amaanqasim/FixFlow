@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
+import AdminSidebar from "../../components/AdminSidebar";
+
 import { issueHistory, issues, users } from "../../data/dummyData";
 
 function IssueHistory() {
@@ -43,83 +45,7 @@ function IssueHistory() {
 
       <div className="flex">
         {/* SIDEBAR */}
-        <aside className="w-64 min-h-[calc(100vh-64px)] bg-slate-900 text-white">
-          <div className="p-6 border-b border-slate-700">
-            <div className="flex items-center gap-2">
-              <History size={24} />
-              <h2 className="text-xl font-bold">
-                Admin Panel
-              </h2>
-            </div>
-          </div>
-
-          <nav className="p-4 space-y-2">
-
-            {/* DASHBOARD */}
-            <a
-              href="/admin"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <LayoutDashboard size={19} />
-              Dashboard
-            </a>
-
-            {/* ALL ISSUES */}
-            <a
-              href="/admin/issues"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <ClipboardList size={19} />
-              All Issues
-            </a>
-
-            {/* MANAGE USERS */}
-            <a
-              href="/admin/users"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Users size={19} />
-              Manage Users
-            </a>
-
-            {/* ANALYTICS */}
-            <a
-              href="/admin/analytics"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <BarChart3 size={19} />
-              Analytics
-            </a>
-
-            {/* AI INSIGHTS */}
-            <a
-              href="/admin/ai-insights"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Brain size={19} />
-              AI Insights
-            </a>
-
-            {/* ISSUE HISTORY - ACTIVE */}
-            <a
-              href="/admin/history"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white"
-            >
-              <History size={19} />
-              Issue History
-            </a>
-
-            {/* SETTINGS */}
-            <a
-              href="/admin/settings"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
-            >
-              <Settings size={19} />
-              Settings
-            </a>
-
-          </nav>
-        </aside>
+        <AdminSidebar />
 
         {/* MAIN CONTENT */}
         <main className="flex-1 p-8">

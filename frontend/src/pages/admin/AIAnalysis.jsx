@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
+import AdminSidebar from "../../components/AdminSidebar";
 import { issues } from "../../data/dummyData";
 
 function AIAnalysis() {
@@ -67,67 +68,8 @@ function AIAnalysis() {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 min-h-[calc(100vh-64px)] bg-slate-900 text-white p-5">
-          <h2 className="text-xl font-bold mb-8">Admin Panel</h2>
-
-          <nav className="space-y-2">
-            <a
-              href="/admin"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800"
-            >
-              <LayoutDashboard size={19} />
-              Dashboard
-            </a>
-
-            <a
-              href="/admin/issues"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800"
-            >
-              <ClipboardList size={19} />
-              All Issues
-            </a>
-
-            <a
-              href="/admin/users"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800"
-            >
-              <Users size={19} />
-              Manage Users
-            </a>
-
-            <a
-              href="/admin/analytics"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800"
-            >
-              <BarChart3 size={19} />
-              Analytics
-            </a>
-
-            <a
-              href="/admin/ai-insights"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800"
-            >
-              <Brain size={19} />
-              AI Insights
-            </a>
-
-            <a
-              href="/admin/history"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800"
-            >
-              <History size={19} />
-              Issue History
-            </a>
-
-            <a
-              href="/admin/settings"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800"
-            >
-              <Settings size={19} />
-              Settings
-            </a>
-          </nav>
-        </aside>
+        
+        <AdminSidebar />
 
         {/* Main Content */}
         <main className="flex-1 p-8">
