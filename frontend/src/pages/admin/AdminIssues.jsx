@@ -1,102 +1,66 @@
-import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ClipboardList,
   Users,
   BarChart3,
   Brain,
-  Settings,
+  Sparkles,
   History,
   QrCode,
-  Search,
-  Filter,
-  Eye,
+  Settings,
 } from "lucide-react";
 
 import Navbar from "../../components/Navbar";
+import { issues } from "../../data/dummyData";
 
-function AdminIssues() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [priorityFilter, setPriorityFilter] = useState("ALL");
-  const [categoryFilter, setCategoryFilter] = useState("ALL");
-  const [issues, setIssues] = useState([]); 
-  useEffect(() => {
-  const fetchIssues = async () => {
-    const token = localStorage.getItem("fixflowToken");
+function AdminDashboard() {
+  const totalIssues = issues.length;
 
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
+  const openIssues = issues.filter(
+    (issue) => issue.status === "OPEN"
+  ).length;
 
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/issues",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  const assignedIssues = issues.filter(
+    (issue) => issue.status === "ASSIGNED"
+  ).length;
 
-      const data = await response.json();
+  const inProgressIssues = issues.filter(
+    (issue) => issue.status === "IN_PROGRESS"
+  ).length;
 
-      if (!response.ok) {
-        console.error(data.message || "Failed to fetch issues");
-        return;
-      }
+  const resolvedIssues = issues.filter(
+    (issue) => issue.status === "RESOLVED"
+  ).length;
 
-      setIssues(data.issues || []);
-    } catch (error) {
-      console.error("Fetch issues error:", error);
-    }
-  };
-
-  fetchIssues();
-}, []);
-
-  const filteredIssues = issues.filter((issue) => {
-    const matchesSearch =
-          String(issue.issueId).toLowerCase().includes(searchTerm.toLowerCase()) ||
-      issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      issue.location.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "ALL" || issue.status === statusFilter;
-
-    const matchesPriority =
-      priorityFilter === "ALL" || issue.priority === priorityFilter;
-
-    const matchesCategory =
-      categoryFilter === "ALL" || issue.category === categoryFilter;
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesPriority &&
-      matchesCategory
-    );
-  });
+  const criticalIssues = issues.filter(
+    (issue) => issue.priority === "CRITICAL"
+  ).length;
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="h-screen overflow-hidden bg-slate-100">
       <Navbar />
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 min-h-[calc(100vh-64px)] bg-slate-900 text-white">
-          <div className="p-6 border-b border-slate-700">
-            <div className="flex items-center gap-2">
-              <ClipboardList size={24} />
-              <h2 className="text-xl font-bold">Admin Panel</h2>
-            </div>
+      {/* DASHBOARD AREA */}
+      <div className="flex h-[calc(100vh-64px)]">
+
+        {/* SIDEBAR */}
+        <aside className="w-64 shrink-0 h-full bg-[#111111] text-white">
+
+          <div className="p-5">
+            <h2 className="text-xl font-bold">
+              Admin Panel
+            </h2>
+
+            <p className="text-sm text-slate-400 mt-1">
+              FixFlow Management
+            </p>
           </div>
 
-          <nav className="p-4 space-y-2">
+          <nav className="px-3 space-y-1">
+
             <a
               href="/admin"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white"
             >
               <LayoutDashboard size={19} />
               Dashboard
@@ -104,7 +68,7 @@ function AdminIssues() {
 
             <a
               href="/admin/issues"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <ClipboardList size={19} />
               All Issues
@@ -112,7 +76,7 @@ function AdminIssues() {
 
             <a
               href="/admin/users"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <Users size={19} />
               Manage Users
@@ -120,7 +84,7 @@ function AdminIssues() {
 
             <a
               href="/admin/analytics"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <BarChart3 size={19} />
               Analytics
@@ -128,24 +92,31 @@ function AdminIssues() {
 
             <a
               href="/admin/ai-insights"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <Brain size={19} />
               AI Insights
             </a>
 
             <a
+              href="/admin/ai-analysis"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
+            >
+              <Sparkles size={19} />
+              AI Issue Analysis
+            </a>
+
+            <a
               href="/admin/history"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <History size={19} />
               Issue History
             </a>
 
-            {/* QR MANAGEMENT */}
             <a
               href="/admin/qr"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <QrCode size={19} />
               QR Management
@@ -153,194 +124,228 @@ function AdminIssues() {
 
             <a
               href="/admin/settings"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
             >
               <Settings size={19} />
               Settings
             </a>
+
           </nav>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 p-8">
+        {/* MAIN CONTENT */}
+        <main className="flex-1 min-w-0 h-full overflow-y-auto p-8">
+
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-800">
-              All Issues
+              Admin Dashboard
             </h1>
 
             <p className="text-slate-500 mt-1">
-              View and manage all reported issues
+              Monitor and manage all FixFlow issues.
             </p>
           </div>
 
-          {/* Search and Filters */}
-          <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search
-                  size={20}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
+          {/* SUMMARY CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
-                <input
-                  type="text"
-                  placeholder="Search by issue ID, title or location..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <p className="text-sm text-slate-500">
+                Total Issues
+              </p>
 
-              <div className="flex items-center gap-2">
-                <Filter size={20} className="text-slate-500" />
-
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-3 border border-slate-300 rounded-lg"
-                >
-                  <option value="ALL">All Status</option>
-                  <option value="OPEN">OPEN</option>
-                  <option value="ASSIGNED">ASSIGNED</option>
-                  <option value="IN_PROGRESS">IN_PROGRESS</option>
-                  <option value="RESOLVED">RESOLVED</option>
-                  <option value="CLOSED">CLOSED</option>
-                </select>
-
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value)}
-                  className="px-4 py-3 border border-slate-300 rounded-lg"
-                >
-                  <option value="ALL">All Priority</option>
-                  <option value="LOW">LOW</option>
-                  <option value="MEDIUM">MEDIUM</option>
-                  <option value="HIGH">HIGH</option>
-                  <option value="CRITICAL">CRITICAL</option>
-                </select>
-
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="px-4 py-3 border border-slate-300 rounded-lg"
-                >
-                  <option value="ALL">All Category</option>
-                  <option value="ELECTRICAL">ELECTRICAL</option>
-                  <option value="PLUMBING">PLUMBING</option>
-                  <option value="INFRASTRUCTURE">INFRASTRUCTURE</option>
-                  <option value="CLEANLINESS">CLEANLINESS</option>
-                  <option value="FURNITURE">FURNITURE</option>
-                  <option value="OTHER">OTHER</option>
-                </select>
-              </div>
+              <p className="text-3xl font-bold text-slate-800 mt-2">
+                {totalIssues}
+              </p>
             </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <p className="text-sm text-slate-500">
+                Open Issues
+              </p>
+
+              <p className="text-3xl font-bold text-blue-600 mt-2">
+                {openIssues}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <p className="text-sm text-slate-500">
+                In Progress
+              </p>
+
+              <p className="text-3xl font-bold text-orange-600 mt-2">
+                {inProgressIssues}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-5">
+              <p className="text-sm text-slate-500">
+                Resolved
+              </p>
+
+              <p className="text-3xl font-bold text-green-600 mt-2">
+                {resolvedIssues}
+              </p>
+            </div>
+
           </div>
 
-          {/* Issues Table */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-slate-200">
-              <h2 className="text-lg font-semibold text-slate-800">
-                Issues ({filteredIssues.length})
+          {/* ISSUE STATUS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+            <div className="bg-white rounded-xl shadow-sm p-6">
+
+              <h2 className="text-lg font-semibold text-slate-800 mb-5">
+                Issue Status
               </h2>
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Issue
-                    </th>
+              <div className="space-y-4">
 
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Category
-                    </th>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    OPEN
+                  </span>
 
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Priority
-                    </th>
+                  <span className="font-semibold">
+                    {openIssues}
+                  </span>
+                </div>
 
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Status
-                    </th>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    ASSIGNED
+                  </span>
 
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Location
-                    </th>
+                  <span className="font-semibold">
+                    {assignedIssues}
+                  </span>
+                </div>
 
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Reported By
-                    </th>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    IN_PROGRESS
+                  </span>
 
-                    <th className="text-left px-5 py-4 text-sm font-semibold text-slate-600">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
+                  <span className="font-semibold">
+                    {inProgressIssues}
+                  </span>
+                </div>
 
-                <tbody>
-                  {filteredIssues.map((issue) => (
-                    <tr
-                      key={issue.issueId}
-                      className="border-t border-slate-100 hover:bg-slate-50"
-                    >
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-slate-800">
-                          {issue.issueId}
-                        </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    RESOLVED
+                  </span>
 
-                        <div className="text-sm text-slate-500">
-                          {issue.title}
-                        </div>
-                      </td>
+                  <span className="font-semibold">
+                    {resolvedIssues}
+                  </span>
+                </div>
 
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {issue.category}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm font-medium">
-                        {issue.priority}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                          {issue.status}
-                        </span>
-                      </td>
-
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {issue.location}
-                      </td>
-
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {issue.reportedBy}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <a
-                          href={`/admin/issues/${issue.issueId}`}
-                          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          <Eye size={17} />
-                          View
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {filteredIssues.length === 0 && (
-              <div className="p-10 text-center text-slate-500">
-                No issues found.
               </div>
-            )}
+
+            </div>
+
+            {/* PRIORITY */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+
+              <h2 className="text-lg font-semibold text-slate-800 mb-5">
+                Priority Overview
+              </h2>
+
+              <div className="flex items-center justify-between">
+
+                <div>
+                  <p className="text-sm text-slate-500">
+                    Critical Issues
+                  </p>
+
+                  <p className="text-3xl font-bold text-red-600 mt-2">
+                    {criticalIssues}
+                  </p>
+                </div>
+
+                <div className="text-right">
+
+                  <p className="text-sm text-slate-500">
+                    Total Issues
+                  </p>
+
+                  <p className="text-3xl font-bold text-slate-800 mt-2">
+                    {totalIssues}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
+
+          {/* QUICK ACCESS */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+
+            <h2 className="text-lg font-semibold text-slate-800 mb-5">
+              Quick Access
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              <a
+                href="/admin/issues"
+                className="border rounded-lg p-4 hover:bg-slate-50"
+              >
+                <ClipboardList className="mb-2 text-slate-700" />
+
+                <p className="font-semibold text-slate-800">
+                  View All Issues
+                </p>
+
+                <p className="text-sm text-slate-500 mt-1">
+                  Manage reported issues
+                </p>
+              </a>
+
+              <a
+                href="/admin/analytics"
+                className="border rounded-lg p-4 hover:bg-slate-50"
+              >
+                <BarChart3 className="mb-2 text-slate-700" />
+
+                <p className="font-semibold text-slate-800">
+                  Analytics
+                </p>
+
+                <p className="text-sm text-slate-500 mt-1">
+                  View issue statistics
+                </p>
+              </a>
+
+              <a
+                href="/admin/qr"
+                className="border rounded-lg p-4 hover:bg-slate-50"
+              >
+                <QrCode className="mb-2 text-slate-700" />
+
+                <p className="font-semibold text-slate-800">
+                  QR Management
+                </p>
+
+                <p className="text-sm text-slate-500 mt-1">
+                  Manage issue reporting QR codes
+                </p>
+              </a>
+
+            </div>
+
+          </div>
+
         </main>
+
       </div>
     </div>
   );
 }
 
-export default AdminIssues;
+export default AdminDashboard;

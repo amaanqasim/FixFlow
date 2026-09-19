@@ -37,15 +37,20 @@ function AdminDashboard() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="h-screen bg-slate-100 overflow-hidden">
       <Navbar />
 
-      <div className="flex min-h-[calc(100vh-64px)]">
+      {/* DASHBOARD AREA */}
+      <div className="flex h-[calc(100vh-64px)]">
 
         {/* SIDEBAR */}
-        <aside className="w-64 bg-slate-900 text-white flex-shrink-0">
+        <aside className="w-64 h-full shrink-0 bg-slate-900 text-white overflow-y-auto">
+
           <div className="p-5">
-            <h2 className="text-xl font-bold">Admin Panel</h2>
+            <h2 className="text-xl font-bold">
+              Admin Panel
+            </h2>
+
             <p className="text-sm text-slate-400 mt-1">
               FixFlow Management
             </p>
@@ -53,7 +58,6 @@ function AdminDashboard() {
 
           <nav className="px-3 space-y-1">
 
-            {/* Dashboard */}
             <a
               href="/admin"
               className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white"
@@ -62,7 +66,6 @@ function AdminDashboard() {
               Dashboard
             </a>
 
-            {/* All Issues */}
             <a
               href="/admin/issues"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -71,7 +74,6 @@ function AdminDashboard() {
               All Issues
             </a>
 
-            {/* Manage Users */}
             <a
               href="/admin/users"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -80,7 +82,6 @@ function AdminDashboard() {
               Manage Users
             </a>
 
-            {/* Analytics */}
             <a
               href="/admin/analytics"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -89,7 +90,6 @@ function AdminDashboard() {
               Analytics
             </a>
 
-            {/* AI Insights */}
             <a
               href="/admin/ai-insights"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -98,7 +98,6 @@ function AdminDashboard() {
               AI Insights
             </a>
 
-            {/* AI Issue Analysis */}
             <a
               href="/admin/ai-analysis"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -107,7 +106,6 @@ function AdminDashboard() {
               AI Issue Analysis
             </a>
 
-            {/* Issue History */}
             <a
               href="/admin/history"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -116,7 +114,6 @@ function AdminDashboard() {
               Issue History
             </a>
 
-            {/* QR Management */}
             <a
               href="/admin/qr"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -125,7 +122,6 @@ function AdminDashboard() {
               QR Management
             </a>
 
-            {/* Settings */}
             <a
               href="/admin/settings"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -137,44 +133,62 @@ function AdminDashboard() {
           </nav>
         </aside>
 
+
         {/* MAIN CONTENT */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 min-w-0 h-full overflow-y-auto p-8">
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-800">
               Admin Dashboard
             </h1>
+
             <p className="text-slate-500 mt-1">
               Monitor and manage all FixFlow issues.
             </p>
           </div>
 
+
           {/* SUMMARY CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
             <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">Total Issues</p>
+              <p className="text-sm text-slate-500">
+                Total Issues
+              </p>
+
               <p className="text-3xl font-bold text-slate-800 mt-2">
                 {totalIssues}
               </p>
             </div>
 
+
             <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">Open Issues</p>
+              <p className="text-sm text-slate-500">
+                Open Issues
+              </p>
+
               <p className="text-3xl font-bold text-blue-600 mt-2">
                 {openIssues}
               </p>
             </div>
 
+
             <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">In Progress</p>
+              <p className="text-sm text-slate-500">
+                In Progress
+              </p>
+
               <p className="text-3xl font-bold text-orange-600 mt-2">
                 {inProgressIssues}
               </p>
             </div>
 
+
             <div className="bg-white rounded-xl shadow-sm p-5">
-              <p className="text-sm text-slate-500">Resolved</p>
+              <p className="text-sm text-slate-500">
+                Resolved
+              </p>
+
               <p className="text-3xl font-bold text-green-600 mt-2">
                 {resolvedIssues}
               </p>
@@ -182,10 +196,12 @@ function AdminDashboard() {
 
           </div>
 
+
           {/* ISSUE STATUS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
             <div className="bg-white rounded-xl shadow-sm p-6">
+
               <h2 className="text-lg font-semibold text-slate-800 mb-5">
                 Issue Status
               </h2>
@@ -193,56 +209,91 @@ function AdminDashboard() {
               <div className="space-y-4">
 
                 <div className="flex justify-between">
-                  <span className="text-slate-600">OPEN</span>
-                  <span className="font-semibold">{openIssues}</span>
+                  <span className="text-slate-600">
+                    OPEN
+                  </span>
+
+                  <span className="font-semibold">
+                    {openIssues}
+                  </span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-slate-600">ASSIGNED</span>
-                  <span className="font-semibold">{assignedIssues}</span>
-                </div>
 
                 <div className="flex justify-between">
-                  <span className="text-slate-600">IN_PROGRESS</span>
-                  <span className="font-semibold">{inProgressIssues}</span>
+                  <span className="text-slate-600">
+                    ASSIGNED
+                  </span>
+
+                  <span className="font-semibold">
+                    {assignedIssues}
+                  </span>
                 </div>
 
+
                 <div className="flex justify-between">
-                  <span className="text-slate-600">RESOLVED</span>
-                  <span className="font-semibold">{resolvedIssues}</span>
+                  <span className="text-slate-600">
+                    IN_PROGRESS
+                  </span>
+
+                  <span className="font-semibold">
+                    {inProgressIssues}
+                  </span>
+                </div>
+
+
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    RESOLVED
+                  </span>
+
+                  <span className="font-semibold">
+                    {resolvedIssues}
+                  </span>
                 </div>
 
               </div>
+
             </div>
+
 
             {/* PRIORITY */}
             <div className="bg-white rounded-xl shadow-sm p-6">
+
               <h2 className="text-lg font-semibold text-slate-800 mb-5">
                 Priority Overview
               </h2>
 
               <div className="flex items-center justify-between">
+
                 <div>
                   <p className="text-sm text-slate-500">
                     Critical Issues
                   </p>
+
                   <p className="text-3xl font-bold text-red-600 mt-2">
                     {criticalIssues}
                   </p>
                 </div>
 
+
                 <div className="text-right">
+
                   <p className="text-sm text-slate-500">
                     Total Issues
                   </p>
+
                   <p className="text-3xl font-bold text-slate-800 mt-2">
                     {totalIssues}
                   </p>
+
                 </div>
+
               </div>
+
             </div>
 
           </div>
+
 
           {/* QUICK ACCESS */}
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -258,35 +309,43 @@ function AdminDashboard() {
                 className="border rounded-lg p-4 hover:bg-slate-50"
               >
                 <ClipboardList className="mb-2 text-slate-700" />
+
                 <p className="font-semibold text-slate-800">
                   View All Issues
                 </p>
+
                 <p className="text-sm text-slate-500 mt-1">
                   Manage reported issues
                 </p>
               </a>
+
 
               <a
                 href="/admin/analytics"
                 className="border rounded-lg p-4 hover:bg-slate-50"
               >
                 <BarChart3 className="mb-2 text-slate-700" />
+
                 <p className="font-semibold text-slate-800">
                   Analytics
                 </p>
+
                 <p className="text-sm text-slate-500 mt-1">
                   View issue statistics
                 </p>
               </a>
+
 
               <a
                 href="/admin/qr"
                 className="border rounded-lg p-4 hover:bg-slate-50"
               >
                 <QrCode className="mb-2 text-slate-700" />
+
                 <p className="font-semibold text-slate-800">
                   QR Management
                 </p>
+
                 <p className="text-sm text-slate-500 mt-1">
                   Manage issue reporting QR codes
                 </p>
@@ -297,6 +356,7 @@ function AdminDashboard() {
           </div>
 
         </main>
+
       </div>
     </div>
   );
