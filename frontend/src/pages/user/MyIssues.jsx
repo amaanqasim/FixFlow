@@ -146,16 +146,16 @@ function MyIssues() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="h-screen overflow-hidden bg-slate-100">
       <Navbar />
 
-      <div className="flex">
+      <div className="flex h-[calc(100vh-4rem)]">
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 h-full overflow-y-auto">
 
           {/* Mobile menu */}
           <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3">
